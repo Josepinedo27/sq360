@@ -1,0 +1,131 @@
+﻿[dotenv@17.2.3] injecting env (1) from .env -- tip: ≡ƒæÑ sync secrets across teammates & machines: https://dotenvx.com/ops
+≡ƒöì Testing Speed Queen API endpoints for location-level reports...
+
+1∩╕ÅΓâú Fetching locations...
+Raw response: {
+  "data": [
+    {
+      "id": "loc_eb8d83",
+      "name": "La Frontera",
+      "timezone": "America/Bogota",
+      "address": "CRA. 43 # 33-57 BLOQUE 2 OF. 201 MEDELL├ìN ΓÇô COLOMBIA",
+      "coordinates": {
+        "lat": 6.268844,
+        "long": -75.6666035
+      },
+      "metadata": {
+        "tags": [],
+        "techAssignee": ""
+      }
+    },
+    {
+      "id": "loc_bbbea9",
+      "name": "Studio 56",
+      "timezone": "America/Bogota",
+      "address": "Av. Caracas #56-27, Bogot├í, Colombia",
+      "coordinates": {
+        "lat": 4.6435219,
+        "long": -74.0680533
+      },
+      "metadata": {
+        "tags": [],
+        "techAssignee": ""
+      }
+    },
+    {
+      "id": "loc_3b9f40",
+      "name": "Terrazzino",
+      "timezone": "America/Bogota",
+      "address": "536, I-90A #22, La Boquilla, Bol├¡var, Colombia",
+      "coordinates": {
+        "lat": 10.4619516,
+        "long": -75.5042462
+      },
+      "metadata": {
+        "tags": [],
+        "techAssignee": ""
+      }
+    },
+    {
+      "id": "loc_8227b1",
+      "name": "Museo Parque Central",
+      "timezone": "America/Bogota",
+      "address": "Calle 28 #13A-24 Bogot├í Colombia",
+      "coordinates": {
+        "lat": 4.617332,
+        "long": -74.0732152
+      },
+      "metadata": {
+        "tags": [],
+        "techAssignee": ""
+      }
+    },
+    {
+      "id": "loc_d6c11a",
+      "name": "Bunsichari",
+      "timezone": "America/Bogota",
+      "address": "Santa Marta, Magdalena, Colombia",
+      "coordinates": {
+        "lat": 11.1372666,
+        "long": -74.2273296
+      },
+      "metadata": {
+        "tags": [],
+        "techAssignee": ""
+      }
+    }
+  ],
+  "meta": {
+    "itemsPerPage": 5,
+    "totalItems": 257,
+    "currentPage": 1,
+    "totalPages": 52
+  }
+}
+Γ¥î No locations found or unexpected format
+Response data type: object
+Response data: {
+  data: [
+    {
+      id: 'loc_eb8d83',
+      name: 'La Frontera',
+      timezone: 'America/Bogota',
+      address: 'CRA. 43 # 33-57 BLOQUE 2 OF. 201 MEDELL├ìN ΓÇô COLOMBIA',
+      coordinates: [Object],
+      metadata: [Object]
+    },
+    {
+      id: 'loc_bbbea9',
+      name: 'Studio 56',
+      timezone: 'America/Bogota',
+      address: 'Av. Caracas #56-27, Bogot├í, Colombia',
+      coordinates: [Object],
+      metadata: [Object]
+    },
+    {
+      id: 'loc_3b9f40',
+      name: 'Terrazzino',
+      timezone: 'America/Bogota',
+      address: '536, I-90A #22, La Boquilla, Bol├¡var, Colombia',
+      coordinates: [Object],
+      metadata: [Object]
+    },
+    {
+      id: 'loc_8227b1',
+      name: 'Museo Parque Central',
+      timezone: 'America/Bogota',
+      address: 'Calle 28 #13A-24 Bogot├í Colombia',
+      coordinates: [Object],
+      metadata: [Object]
+    },
+    {
+      id: 'loc_d6c11a',
+      name: 'Bunsichari',
+      timezone: 'America/Bogota',
+      address: 'Santa Marta, Magdalena, Colombia',
+      coordinates: [Object],
+      metadata: [Object]
+    }
+  ],
+  meta: { itemsPerPage: 5, totalItems: 257, currentPage: 1, totalPages: 52 }
+}
