@@ -555,12 +555,334 @@ body {
     padding: 0.75rem;
   }
 
-  .location-revenue-table table {
+  .location-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .machine-count {
+    color: var(--text-secondary);
+  }
+
+  .revenue {
+    color: var(--success-color);
+    font-weight: 600;
+  }
+
+  .percentage {
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+  }
+
+  /* Responsive - Mobile First */
+  @media (max-width: 768px) {
+    .dashboard-container {
+      padding: 0.75rem;
+    }
+
+    .header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      text-align: center;
+    }
+
+    .header-controls {
+      width: 100%;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .month-selector {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      gap: 0.75rem;
+    }
+
+    .month-nav-btn {
+      padding: 0.5rem;
+    }
+
+    .month-display {
+      font-size: 0.875rem;
+      min-width: auto;
+      flex: 1;
+    }
+
+    .current-badge {
+      font-size: 0.65rem;
+      padding: 0.1rem 0.4rem;
+    }
+
+    .refresh-btn {
+      width: 100%;
+      justify-content: center;
+      padding: 0.75rem;
+    }
+
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .card {
+      padding: 1rem;
+    }
+
+    .card-value {
+      font-size: 1.75rem;
+    }
+
+    .card-subtext {
+      font-size: 0.75rem;
+    }
+
+    .location-revenue-table {
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .table-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .table-header h2 {
+      font-size: 1.25rem;
+    }
+
+    .search-box {
+      width: 100%;
+      min-width: auto;
+    }
+
+    .table-summary {
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 0.75rem;
+    }
+
+    .summary-item {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .summary-label {
+      font-size: 0.8rem;
+    }
+
+    .summary-value {
+      font-size: 0.9rem;
+    }
+
+    .table-container {
+      max-height: none;
+      overflow-x: auto;
+    }
+
+    .location-revenue-table table {
+      font-size: 0.8rem;
+      min-width: 600px;
+    }
+
+    .location-revenue-table th,
+    .location-revenue-table td {
+      padding: 0.6rem 0.4rem;
+    }
+
+    .location-revenue-table th {
+      font-size: 0.75rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    html {
+      font-size: 12px;
+      /* 75% of default 16px, effectively zooming out */
+    }
+
+    .dashboard-container {
+      padding: 0.5rem;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      /* Relative to new base size */
+    }
+
+    .month-selector {
+      padding: 0.5rem;
+      gap: 0.5rem;
+    }
+
+    .month-display {
+      font-size: 1rem;
+    }
+
+    .card-value {
+      font-size: 2rem;
+    }
+
+    .card-header {
+      font-size: 0.9rem;
+    }
+
+    .table-header h2 {
+      font-size: 1.25rem;
+    }
+
+    .location-revenue-table {
+      padding: 0.75rem;
+    }
+
+    .location-revenue-table table {
+      font-size: 0.9rem;
+    }
+
+    .location-revenue-table th,
+    .location-revenue-table td {
+      padding: 0.5rem 0.25rem;
+    }
+  }
+
+  /* Login Styles */
+  .login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 1rem;
+    background: radial-gradient(circle at top center, #1e293b 0%, #0f172a 100%);
+  }
+
+  .login-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    text-align: center;
+  }
+
+  .login-header {
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .icon-bg {
+    background: var(--accent-color);
+    padding: 1rem;
+    border-radius: 50%;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .login-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .login-header p {
+    color: var(--text-secondary);
     font-size: 0.9rem;
   }
 
-  .location-revenue-table th,
-  .location-revenue-table td {
-    padding: 0.5rem 0.25rem;
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
   }
-}
+
+  .input-group input {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.75rem;
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    outline: none;
+  }
+
+  .input-group input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+
+  .login-btn {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .login-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+
+  .error-message {
+    color: var(--danger-color);
+    font-size: 0.875rem;
+    background: rgba(239, 68, 68, 0.1);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
+  }
+
+  @keyframes shake {
+
+    10%,
+    90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+      transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+      transform: translate3d(4px, 0, 0);
+    }
+  }

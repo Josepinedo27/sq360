@@ -1,7 +1,18 @@
 export default async function handler(req, res) {
-    // Enable CORS
+    // Enable CORS with strict origin check
+    const allowedOrigins = [
+        'https://sq360.vercel.app',
+        'http://localhost:5173',
+        'http://localhost:3000'
+    ];
+
+    const origin = req.headers.origin;
+
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+
     res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
     res.setHeader(
         'Access-Control-Allow-Headers',
