@@ -148,49 +148,25 @@ const Dashboard = () => {
         );
     }
 
-    return (
-        <div className="dashboard-container">
-            <div className="header">
-                <h1>Speed Queen 360</h1>
-                <div className="header-controls">
-                    <MonthSelector
-                        selectedDate={selectedMonth}
-                        onDateChange={setSelectedMonth}
-                    />
-                    <button
-                        onClick={fetchData}
-                        className="refresh-btn"
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', marginLeft: '1rem' }}
-                    >
-                        <RefreshCw size={20} />
-                    </button>
-                </div>
-            </div>
+    value = { stats.locations }
+    subtext = "Total de sitios"
+    icon = { MapPin }
+    color = "var(--accent-color)"
+        />
+        <StatCard
+            title="Revenue Total"
+            value={`$${stats.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+            subtext={`${selectedMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`}
+            icon={DollarSign}
+            color="var(--warning-color)"
+        />
+            </div >
 
-            {error && <div className="error">{error}</div>}
-
-            <div className="grid">
-                <StatCard
-                    title="Locaciones Operativas"
-                    value={stats.locations}
-                    subtext="Total de sitios"
-                    icon={MapPin}
-                    color="var(--accent-color)"
-                />
-                <StatCard
-                    title="Revenue Total"
-                    value={`$${stats.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                    subtext={`${selectedMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`}
-                    icon={DollarSign}
-                    color="var(--warning-color)"
-                />
-            </div>
-
-            <LocationRevenueTable
-                locationRevenue={locationRevenue}
-                loading={loading}
-            />
-        </div>
+    <LocationRevenueTable
+        locationRevenue={locationRevenue}
+        loading={loading}
+    />
+        </div >
     );
 };
 
