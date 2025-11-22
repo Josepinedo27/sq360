@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
-import './App.css';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
