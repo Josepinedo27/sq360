@@ -44,6 +44,7 @@ body {
   font-weight: 700;
   background: linear-gradient(to right, #fff, #94a3b8);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin: 0;
 }
@@ -372,80 +373,172 @@ body {
 /* Responsive */
 @media (max-width: 768px) {
   .dashboard-container {
-    padding: 1rem;
+    padding: 0.75rem;
+    max-width: 100%;
   }
 
   .header {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    align-items: stretch;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+    text-align: center;
   }
 
   .header-controls {
     width: 100%;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .month-selector {
-    flex: 1;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .month-nav-btn {
+    padding: 0.5rem;
   }
 
   .month-display {
+    font-size: 0.875rem;
     min-width: auto;
-    font-size: 0.9rem;
+    flex: 1;
+  }
+
+  .current-badge {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.4rem;
+  }
+
+  .refresh-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  .card-value {
+    font-size: 1.75rem;
+  }
+
+  .card-subtext {
+    font-size: 0.75rem;
+  }
+
+  .location-revenue-table {
+    padding: 1rem;
+    margin-top: 1rem;
   }
 
   .table-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .table-header h2 {
+    font-size: 1.25rem;
   }
 
   .search-box {
     width: 100%;
+    min-width: auto;
   }
 
   .table-summary {
     flex-direction: column;
     gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .summary-item {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .summary-label {
+    font-size: 0.8rem;
+  }
+
+  .summary-value {
+    font-size: 0.9rem;
+  }
+
+  .table-container {
+    max-height: none;
+    overflow-x: auto;
   }
 
   .location-revenue-table table {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
+    min-width: 600px;
   }
 
   .location-revenue-table th,
   .location-revenue-table td {
-    padding: 0.75rem 0.5rem;
+    padding: 0.6rem 0.4rem;
   }
 
-  .card-value {
-    font-size: 2rem;
-  }
-
-  .card-subtext {
+  .location-revenue-table th {
     font-size: 0.75rem;
   }
 }
 
 @media (max-width: 480px) {
   .dashboard-container {
-    padding: 0.75rem;
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
-  }
-
-  .card {
-    width: 100%;
-  }
-
-  .month-selector {
     padding: 0.5rem;
   }
 
+  .header h1 {
+    font-size: 1.25rem;
+  }
+
+  .month-selector {
+    padding: 0.4rem 0.6rem;
+    gap: 0.5rem;
+  }
+
   .month-display {
-    min-width: 120px;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+  }
+
+  .card-value {
+    font-size: 1.5rem;
+  }
+
+  .card-header {
+    font-size: 0.75rem;
+  }
+
+  .table-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .location-revenue-table {
+    padding: 0.75rem;
+  }
+
+  .location-revenue-table table {
+    font-size: 0.75rem;
+  }
+
+  .location-revenue-table th,
+  .location-revenue-table td {
+    padding: 0.5rem 0.3rem;
   }
 }
