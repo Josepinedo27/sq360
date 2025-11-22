@@ -37,3 +37,7 @@ Este proyecto está configurado para desplegarse automáticamente en Vercel cuan
 ## Variables de Entorno
 
 El proyecto usa un proxy para las llamadas a la API de Speed Queen 360. Asegúrate de configurar las credenciales necesarias en el archivo `api/proxy.js`.
+
+---
+*Último deploy: 2025-11-22 09:47 AM*
+
