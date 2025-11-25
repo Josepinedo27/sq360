@@ -198,12 +198,16 @@ const Dashboard = () => {
 
                         // Debug: log global calculation
                         if (cycles > 0 && totalCycles < 300) {
-                            console.log('GLOBAL:', m.name, 'Model:', model, 'Char:', typeChar, 'Cycles:', cycles, 'Gas so far:', totalGas);
+                            console.log('BEFORE:', m.name, 'Model:', model, 'Char:', typeChar, 'Cycles:', cycles, 'Gas:', totalGas);
                         }
 
                         if (model.charAt(2) === 'G' || model.charAt(2) === 'L') {
-                            totalGas += cycles * 0.39;
+                            const gasAdded = cycles * 0.39;
+                            totalGas += gasAdded;
                             totalElectric += cycles * 0.19;
+                            if (cycles > 0 && totalCycles < 300) {
+                                console.log('>>> GAS ADDED:', gasAdded, 'New total:', totalGas);
+                            }
                         } else if (model.charAt(2) === 'E') {
                             totalElectric += cycles * 4.5;
                         } else {
