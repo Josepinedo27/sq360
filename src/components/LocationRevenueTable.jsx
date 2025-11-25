@@ -3,7 +3,7 @@ import { MapPin, TrendingUp, Search, Activity, Droplets, Flame, Zap } from 'luci
 
 const LocationRevenueTable = ({ locationRevenue, loading }) => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortBy, setSortBy] = useState('revenue'); // 'revenue' | 'name' | 'machines' | 'cycles' | 'water' | 'gas' | 'electric'
+    const [sortBy, setSortBy] = useState('revenue'); // 'revenue' | 'name' | 'machines' | 'cycles' | 'water' | 'gas' | 'electric' | 'electric'
     const [sortOrder, setSortOrder] = useState('desc'); // 'asc' | 'desc'
     const [expandedLocationId, setExpandedLocationId] = useState(null);
 
