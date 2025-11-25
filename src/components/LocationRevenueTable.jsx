@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { MapPin, TrendingUp, Search } from 'lucide-react';
+import { MapPin, TrendingUp, Search, Activity, Droplets, Flame } from 'lucide-react';
 
 const LocationRevenueTable = ({ locationRevenue, loading }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('revenue'); // 'revenue' | 'name' | 'machines' | 'cycles' | 'water' | 'gas'
     const [sortOrder, setSortOrder] = useState('desc'); // 'asc' | 'desc'
+    const [expandedLocationId, setExpandedLocationId] = useState(null);
 
     const filteredAndSorted = useMemo(() => {
         let filtered = locationRevenue.filter(loc =>
