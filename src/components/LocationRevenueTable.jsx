@@ -124,116 +124,101 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                             <th onClick={() => handleSort('revenue')} className="sortable">
                                 Revenue {sortBy === 'revenue' && (sortOrder === 'asc' ? '↑' : '↓')}
                             </th>
-                            <th onClick={() => handleSort('prevRevenue')} className="sortable">
-                                Mes Anterior {sortBy === 'prevRevenue' && (sortOrder === 'asc' ? '↑' : '↓')}
-                            </th>
-                            <th onClick={() => handleSort('cycles')} className="sortable">
-                                Ciclos {sortBy === 'cycles' && (sortOrder === 'asc' ? '↑' : '↓')}
-                            </th>
-                            <th onClick(() => handleSort('water')} className="sortable">
-                            Agua (L) {sortBy === 'water' && (sortOrder === 'asc' ? '↑' : '↓')}
-                        </th>
-                        <th onClick={() => handleSort('gas')} className="sortable">
-                            Gas (m³) {sortBy === 'gas' && (sortOrder === 'asc' ? '↑' : '↓')}
-                        </th>
-                        <th onClick={() => handleSort('electric')} className="sortable">
-                            Electricidad (kW/h) {sortBy === 'electric' && (sortOrder === 'asc' ? '↑' : '↓')}
-                        </th>
-                        <th>% del Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredAndSorted.map((location) => (
-                        <React.Fragment key={location.locationId}>
-                            <tr
-                                className={`location-row ${expandedLocationId === location.locationId ? 'expanded' : ''}`}
-                                onClick={() => handleRowClick(location.locationId)}
-                            >
-                                <td className="location-name">
-                                    <MapPin size={16} />
-                                    <span>{location.locationName}</span>
-                                </td>
-                                <td className="machine-count">{location.machineCount}</td>
-                                <td className="revenue">
-                                    ${location.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </td>
-                                <td className="revenue" style={{ color: 'var(--text-secondary)' }}>
-                                    ${location.prevTotalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </td>
-                                <td className="cycles">
-                                    {location.totalCycles?.toLocaleString() || 0}
-                                </td>
-                                <td className="consumption">
-                                    {location.waterConsumption?.toLocaleString() || 0}
-                                </td>
-                                <td className="consumption">
-                                    {(location.gasConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </td>
-                                <td className="consumption">
-                                    {(location.electricConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </td>
-                                <td className="percentage">
-                                    {totalRevenue > 0 ? ((location.totalRevenue / totalRevenue) * 100).toFixed(1) : 0}%
-                                </td>
-                            </tr>
-                            {expandedLocationId === location.locationId && (
-                                <tr className="location-detail-row">
-                                    <td colSpan="9">
-                                        <div className="location-detail-panel">
-                                            <h4>Detalles de Consumo - {location.locationName}</h4>
-                                            <div className="detail-grid">
-                                                <div className="detail-item">
-                                                    <Activity size={20} />
-                                                    <span className="detail-label">Ciclos Totales</span>
-                                                    <span className="detail-value">
-                                                        {(location.totalCycles || 0).toLocaleString()}
-                                                    </span>
-                                                </div>
-                                                <div className="detail-item">
-                                                    <Droplets size={20} />
-                                                    <span className="detail-label">Consumo Agua</span>
-                                                    <span className="detail-value">
-                                                        {(location.waterConsumption || 0).toLocaleString()} L
-                                                    </span>
-                                                </div>
-                                                <div className="detail-item">
-                                                    <Flame size={20} />
-                                                    <span className="detail-label">Consumo Gas</span>
-                                                    <span className="detail-value">
-                                                        {(location.gasConsumption || 0).toLocaleString(undefined, {
-                                                            minimumFractionDigits: 2,
-                                                            maximumFractionDigits: 2
-                                                        })} m³
-                                                    </span>
-                                                </div>
-                                                <div className="detail-item">
-                                                    <Zap size={20} />
-                                                    <span className="detail-label">Consumo Eléctrico</span>
-                                                    <span className="detail-value">
-                                                        {(location.electricConsumption || 0).toLocaleString(undefined, {
-                                                            minimumFractionDigits: 2,
-                                                            maximumFractionDigits: 2
-                                                        })} kW/h
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
+                            <th>% del Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredAndSorted.map((location) => (
+                            <React.Fragment key={location.locationId}>
+                                <tr
+                                    className={`location-row ${expandedLocationId === location.locationId ? 'expanded' : ''}`}
+                                    onClick={() => handleRowClick(location.locationId)}
+                                >
+                                    <td className="location-name">
+                                        <MapPin size={16} />
+                                        <span>{location.locationName}</span>
+                                    </td>
+                                    <td className="machine-count">{location.machineCount}</td>
+                                    <td className="revenue">
+                                        ${location.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </td>
+                                    <td className="revenue" style={{ color: 'var(--text-secondary)' }}>
+                                        ${location.prevTotalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </td>
+                                    <td className="cycles">
+                                        {location.totalCycles?.toLocaleString() || 0}
+                                    </td>
+                                    <td className="consumption">
+                                        {location.waterConsumption?.toLocaleString() || 0}
+                                    </td>
+                                    <td className="consumption">
+                                        {(location.gasConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </td>
+                                    <td className="consumption">
+                                        {(location.electricConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </td>
+                                    <td className="percentage">
+                                        {totalRevenue > 0 ? ((location.totalRevenue / totalRevenue) * 100).toFixed(1) : 0}%
                                     </td>
                                 </tr>
-                            )}
-                        </React.Fragment>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+                                {expandedLocationId === location.locationId && (
+                                    <tr className="location-detail-row">
+                                        <td colSpan="9">
+                                            <div className="location-detail-panel">
+                                                <h4>Detalles de Consumo - {location.locationName}</h4>
+                                                <div className="detail-grid">
+                                                    <div className="detail-item">
+                                                        <Activity size={20} />
+                                                        <span className="detail-label">Ciclos Totales</span>
+                                                        <span className="detail-value">
+                                                            {(location.totalCycles || 0).toLocaleString()}
+                                                        </span>
+                                                    </div>
+                                                    <div className="detail-item">
+                                                        <Droplets size={20} />
+                                                        <span className="detail-label">Consumo Agua</span>
+                                                        <span className="detail-value">
+                                                            {(location.waterConsumption || 0).toLocaleString()} L
+                                                        </span>
+                                                    </div>
+                                                    <div className="detail-item">
+                                                        <Flame size={20} />
+                                                        <span className="detail-label">Consumo Gas</span>
+                                                        <span className="detail-value">
+                                                            {(location.gasConsumption || 0).toLocaleString(undefined, {
+                                                                minimumFractionDigits: 2,
+                                                                maximumFractionDigits: 2
+                                                            })} m³
+                                                        </span>
+                                                    </div>
+                                                    <div className="detail-item">
+                                                        <Zap size={20} />
+                                                        <span className="detail-label">Consumo Eléctrico</span>
+                                                        <span className="detail-value">
+                                                            {(location.electricConsumption || 0).toLocaleString(undefined, {
+                                                                minimumFractionDigits: 2,
+                                                                maximumFractionDigits: 2
+                                                            })} kW/h
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </React.Fragment>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
 
             {
-        filteredAndSorted.length === 0 && (
-            <div className="no-results">
-                <p>No se encontraron locaciones que coincidan con "{searchTerm}"</p>
-            </div>
-        )
-    }
+                filteredAndSorted.length === 0 && (
+                    <div className="no-results">
+                        <p>No se encontraron locaciones que coincidan con "{searchTerm}"</p>
+                    </div>
+                )
+            }
         </div >
     );
 };
