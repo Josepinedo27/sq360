@@ -186,6 +186,8 @@ const Dashboard = () => {
             let totalGas = 0;
             let totalElectric = 0;
 
+            console.log('=== GLOBAL CALC START ===', 'Locations:', cycleList.length);
+
             cycleList.forEach(loc => {
                 if (loc.machines) {
                     loc.machines.forEach(m => {
@@ -211,6 +213,8 @@ const Dashboard = () => {
                     });
                 }
             });
+
+            console.log('=== FINAL TOTALS ===', 'Gas:', totalGas, 'Water:', totalWater, 'Electric:', totalElectric);
 
             const avgCyclesPerMachine = totalMachines > 0 ? (totalCycles / totalMachines) : 0;
 
