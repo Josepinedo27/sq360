@@ -13,7 +13,8 @@ const Dashboard = () => {
         avgCyclesPerMachine: 0,
         avgDailyCycles: 0,
         waterConsumption: 0,
-        gasConsumption: 0
+        gasConsumption: 0,
+        electricConsumption: 0
     });
     const [locationRevenue, setLocationRevenue] = useState([]);
     const [selectedMonth, setSelectedMonth] = useState(new Date());
@@ -41,6 +42,7 @@ const Dashboard = () => {
                 machines: new Set(),
                 waterConsumption: 0,
                 gasConsumption: 0,
+                electricConsumption: 0,
                 totalCycles: 0
             };
         });
@@ -81,30 +83,34 @@ const Dashboard = () => {
         if (Array.isArray(cycleList)) {
             cycleList.forEach(loc => {
                 if (locationMap[loc.id] && loc.machines) {
-                    let washerCycles = 0;
-                    let dryerCycles = 0;
+                    let waterConsumption = 0;
+                    let gasConsumption = 0;
+                    let electricConsumption = 0;
                     let totalCycles = 0;
 
                     loc.machines.forEach(m => {
                         const cycles = parseInt(m.totalCycles || 0, 10);
                         totalCycles += cycles;
+                        const model = (m.model || '').toUpperCase();
 
-                        // Extract node number from name
-                        const name = m.name || '';
-                        const match = name.match(/(\d+)(?!.*\d)/);
-                        const nodeNum = match ? parseInt(match[0], 10) : 0;
-
-                        if (nodeNum > 0) {
-                            if (nodeNum % 2 !== 0) {
-                                dryerCycles += cycles;
-                            } else {
-                                washerCycles += cycles;
-                            }
+                        // Detect machine type by model prefix
+                        if (model.startsWith('STG')) {
+                            // Gas dryer (STG)
+                            gasConsumption += cycles * 0.39;  // Gas: 0.39 m³ per cycle
+                            electricConsumption += cycles * 0.19;  // Electric: 0.19 kW/hr per cycle
+                        } else if (model.startsWith('STE')) {
+                            // Electric dryer (STE) - NO gas
+                            electricConsumption += cycles * 4.5;  // Electric: 4.5 kW/hr per cycle
+                        } else {
+                            // Washer (or unknown - assume washer)
+                            waterConsumption += cycles * 77;  // Water: 77 L per cycle
+                            electricConsumption += cycles * 0.35;  // Electric: 0.35 kW/hr per cycle
                         }
                     });
 
-                    locationMap[loc.id].waterConsumption = washerCycles * 77;
-                    locationMap[loc.id].gasConsumption = dryerCycles * 0.39;
+                    locationMap[loc.id].waterConsumption = waterConsumption;
+                    locationMap[loc.id].gasConsumption = gasConsumption;
+                    locationMap[loc.id].electricConsumption = electricConsumption;
                     locationMap[loc.id].totalCycles = totalCycles;
                 }
             });
@@ -118,6 +124,7 @@ const Dashboard = () => {
             machineCount: loc.machines.size,
             waterConsumption: loc.waterConsumption,
             gasConsumption: loc.gasConsumption,
+            electricConsumption: loc.electricConsumption,
             totalCycles: loc.totalCycles
         }));
     };
@@ -170,25 +177,25 @@ const Dashboard = () => {
             const prevTotalRevenue = revenueByLocation.reduce((sum, loc) => sum + loc.prevTotalRevenue, 0);
 
             let totalCycles = 0;
-            let washerCycles = 0;
-            let dryerCycles = 0;
+            let totalWater = 0;
+            let totalGas = 0;
+            let totalElectric = 0;
 
             cycleList.forEach(loc => {
                 if (loc.machines) {
                     loc.machines.forEach(m => {
                         const cycles = parseInt(m.totalCycles || 0, 10);
                         totalCycles += cycles;
+                        const model = (m.model || '').toUpperCase();
 
-                        const name = m.name || '';
-                        const match = name.match(/(\d+)(?!.*\d)/);
-                        const nodeNum = match ? parseInt(match[0], 10) : 0;
-
-                        if (nodeNum > 0) {
-                            if (nodeNum % 2 !== 0) {
-                                dryerCycles += cycles;
-                            } else {
-                                washerCycles += cycles;
-                            }
+                        if (model.startsWith('STG')) {
+                            totalGas += cycles * 0.39;
+                            totalElectric += cycles * 0.19;
+                        } else if (model.startsWith('STE')) {
+                            totalElectric += cycles * 4.5;
+                        } else {
+                            totalWater += cycles * 77;
+                            totalElectric += cycles * 0.35;
                         }
                     });
                 }
@@ -199,8 +206,9 @@ const Dashboard = () => {
             const daysInMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0).getDate();
             const avgDailyCycles = totalMachines > 0 ? (totalCycles / (daysInMonth * totalMachines)) : 0;
 
-            const waterConsumption = washerCycles * 77;
-            const gasConsumption = dryerCycles * 0.39;
+            const waterConsumption = totalWater;
+            const gasConsumption = totalGas;
+            const electricConsumption = totalElectric;
 
             setStats({
                 locations: locations.length,
@@ -210,7 +218,8 @@ const Dashboard = () => {
                 avgCyclesPerMachine,
                 avgDailyCycles,
                 waterConsumption,
-                gasConsumption
+                gasConsumption,
+                electricConsumption
             });
 
             setLocationRevenue(revenueByLocation);
@@ -308,9 +317,16 @@ const Dashboard = () => {
                 <StatCard
                     title="Consumo Gas"
                     value={`${stats.gasConsumption.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³`}
-                    subtext="Estimado (Secadoras)"
+                    subtext="Estimado (Secadoras STG)"
                     icon={Flame}
                     color="#F59E0B"
+                />
+                <StatCard
+                    title="Consumo Eléctrico"
+                    value={`${stats.electricConsumption.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kW/h`}
+                    subtext="Total estimado"
+                    icon={Zap}
+                    color="#eab308"
                 />
             </div>
 

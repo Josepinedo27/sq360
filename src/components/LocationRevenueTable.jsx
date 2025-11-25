@@ -3,7 +3,7 @@ import { MapPin, TrendingUp, Search, Activity, Droplets, Flame, Zap } from 'luci
 
 const LocationRevenueTable = ({ locationRevenue, loading }) => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortBy, setSortBy] = useState('revenue'); // 'revenue' | 'name' | 'machines' | 'cycles' | 'water' | 'gas' | 'electric' | 'electric'
+    const [sortBy, setSortBy] = useState('revenue'); // 'revenue' | 'name' | 'machines' | 'cycles' | 'water' | 'gas' | 'electric'
     const [sortOrder, setSortOrder] = useState('desc'); // 'asc' | 'desc'
     const [expandedLocationId, setExpandedLocationId] = useState(null);
 
@@ -36,6 +36,9 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                 case 'gas':
                     comparison = a.gasConsumption - b.gasConsumption;
                     break;
+                case 'electric':
+                    comparison = a.electricConsumption - b.electricConsumption;
+                    break;
                 default:
                     comparison = 0;
             }
@@ -52,6 +55,10 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
             setSortBy(column);
             setSortOrder('desc');
         }
+    };
+
+    const handleRowClick = (locationId) => {
+        setExpandedLocationId(expandedLocationId === locationId ? null : locationId);
     };
 
     const totalRevenue = useMemo(() => {
@@ -123,18 +130,25 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                             <th onClick={() => handleSort('cycles')} className="sortable">
                                 Ciclos {sortBy === 'cycles' && (sortOrder === 'asc' ? '↑' : '↓')}
                             </th>
-                            <th onClick={() => handleSort('water')} className="sortable">
-                                Agua (L) {sortBy === 'water' && (sortOrder === 'asc' ? '↑' : '↓')}
-                            </th>
-                            <th onClick={() => handleSort('gas')} className="sortable">
-                                Gas (m³) {sortBy === 'gas' && (sortOrder === 'asc' ? '↑' : '↓')}
-                            </th>
-                            <th>% del Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredAndSorted.map((location, index) => (
-                            <tr key={location.locationId}>
+                            <th onClick(() => handleSort('water')} className="sortable">
+                            Agua (L) {sortBy === 'water' && (sortOrder === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th onClick={() => handleSort('gas')} className="sortable">
+                            Gas (m³) {sortBy === 'gas' && (sortOrder === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th onClick={() => handleSort('electric')} className="sortable">
+                            Electricidad (kW/h) {sortBy === 'electric' && (sortOrder === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th>% del Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredAndSorted.map((location) => (
+                        <React.Fragment key={location.locationId}>
+                            <tr
+                                className={`location-row ${expandedLocationId === location.locationId ? 'expanded' : ''}`}
+                                onClick={() => handleRowClick(location.locationId)}
+                            >
                                 <td className="location-name">
                                     <MapPin size={16} />
                                     <span>{location.locationName}</span>
@@ -155,21 +169,72 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                                 <td className="consumption">
                                     {(location.gasConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </td>
+                                <td className="consumption">
+                                    {(location.electricConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </td>
                                 <td className="percentage">
                                     {totalRevenue > 0 ? ((location.totalRevenue / totalRevenue) * 100).toFixed(1) : 0}%
                                 </td>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-
-            {filteredAndSorted.length === 0 && (
-                <div className="no-results">
-                    <p>No se encontraron locaciones que coincidan con "{searchTerm}"</p>
-                </div>
-            )}
+                            {expandedLocationId === location.locationId && (
+                                <tr className="location-detail-row">
+                                    <td colSpan="9">
+                                        <div className="location-detail-panel">
+                                            <h4>Detalles de Consumo - {location.locationName}</h4>
+                                            <div className="detail-grid">
+                                                <div className="detail-item">
+                                                    <Activity size={20} />
+                                                    <span className="detail-label">Ciclos Totales</span>
+                                                    <span className="detail-value">
+                                                        {(location.totalCycles || 0).toLocaleString()}
+                                                    </span>
+                                                </div>
+                                                <div className="detail-item">
+                                                    <Droplets size={20} />
+                                                    <span className="detail-label">Consumo Agua</span>
+                                                    <span className="detail-value">
+                                                        {(location.waterConsumption || 0).toLocaleString()} L
+                                                    </span>
+                                                </div>
+                                                <div className="detail-item">
+                                                    <Flame size={20} />
+                                                    <span className="detail-label">Consumo Gas</span>
+                                                    <span className="detail-value">
+                                                        {(location.gasConsumption || 0).toLocaleString(undefined, {
+                                                            minimumFractionDigits: 2,
+                                                            maximumFractionDigits: 2
+                                                        })} m³
+                                                    </span>
+                                                </div>
+                                                <div className="detail-item">
+                                                    <Zap size={20} />
+                                                    <span className="detail-label">Consumo Eléctrico</span>
+                                                    <span className="detail-value">
+                                                        {(location.electricConsumption || 0).toLocaleString(undefined, {
+                                                            minimumFractionDigits: 2,
+                                                            maximumFractionDigits: 2
+                                                        })} kW/h
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </React.Fragment>
+                    ))}
+                </tbody>
+            </table>
         </div>
+
+            {
+        filteredAndSorted.length === 0 && (
+            <div className="no-results">
+                <p>No se encontraron locaciones que coincidan con "{searchTerm}"</p>
+            </div>
+        )
+    }
+        </div >
     );
 };
 
