@@ -93,6 +93,11 @@ const Dashboard = () => {
                         totalCycles += cycles;
                         const model = (m.model || '').toUpperCase();
 
+                        // Debug: log model to see what we're getting
+                        if (cycles > 0) {
+                            console.log('Machine:', m.name, 'Model:', model, 'Cycles:', cycles);
+                        }
+
                         // Detect machine type by model prefix
                         if (model.startsWith('STG')) {
                             // Gas dryer (STG)
