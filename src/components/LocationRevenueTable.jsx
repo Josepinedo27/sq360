@@ -3,7 +3,7 @@ import { MapPin, TrendingUp, Search } from 'lucide-react';
 
 const LocationRevenueTable = ({ locationRevenue, loading }) => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortBy, setSortBy] = useState('revenue'); // 'revenue' | 'name' | 'machines'
+    const [sortBy, setSortBy] = useState('revenue'); // 'revenue' | 'name' | 'machines' | 'cycles' | 'water' | 'gas'
     const [sortOrder, setSortOrder] = useState('desc'); // 'asc' | 'desc'
 
     const filteredAndSorted = useMemo(() => {
@@ -25,6 +25,15 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                     break;
                 case 'machines':
                     comparison = a.machineCount - b.machineCount;
+                    break;
+                case 'cycles':
+                    comparison = a.totalCycles - b.totalCycles;
+                    break;
+                case 'water':
+                    comparison = a.waterConsumption - b.waterConsumption;
+                    break;
+                case 'gas':
+                    comparison = a.gasConsumption - b.gasConsumption;
                     break;
                 default:
                     comparison = 0;
@@ -110,6 +119,15 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                             <th onClick={() => handleSort('prevRevenue')} className="sortable">
                                 Mes Anterior {sortBy === 'prevRevenue' && (sortOrder === 'asc' ? '↑' : '↓')}
                             </th>
+                            <th onClick={() => handleSort('cycles')} className="sortable">
+                                Ciclos {sortBy === 'cycles' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            </th>
+                            <th onClick={() => handleSort('water')} className="sortable">
+                                Agua (L) {sortBy === 'water' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            </th>
+                            <th onClick={() => handleSort('gas')} className="sortable">
+                                Gas (m³) {sortBy === 'gas' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            </th>
                             <th>% del Total</th>
                         </tr>
                     </thead>
@@ -126,6 +144,15 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                                 </td>
                                 <td className="revenue" style={{ color: 'var(--text-secondary)' }}>
                                     ${location.prevTotalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </td>
+                                <td className="cycles">
+                                    {location.totalCycles?.toLocaleString() || 0}
+                                </td>
+                                <td className="consumption">
+                                    {location.waterConsumption?.toLocaleString() || 0}
+                                </td>
+                                <td className="consumption">
+                                    {(location.gasConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </td>
                                 <td className="percentage">
                                     {totalRevenue > 0 ? ((location.totalRevenue / totalRevenue) * 100).toFixed(1) : 0}%

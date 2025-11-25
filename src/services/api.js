@@ -91,3 +91,19 @@ export const getLocationRevenue = async (locationIds, startDate, endDate) => {
     }
 };
 
+export const getLocationCycleUsage = async (locationIds, startDate, endDate) => {
+    try {
+        const response = await api.get('/reports', {
+            params: {
+                reportId: 'AUDIT_CYCLE_USAGE',
+                locationIds: Array.isArray(locationIds) ? locationIds.join(',') : locationIds,
+                startDate,
+                endDate
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching location cycle usage:', error);
+        throw error;
+    }
+};
