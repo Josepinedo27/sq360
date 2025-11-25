@@ -193,11 +193,9 @@ const Dashboard = () => {
                         totalCycles += cycles;
                         const model = (m.model || '').toUpperCase();
 
-                        if (model.startsWith('STG')) {
-                            totalGas += cycles * 0.39;
+                        if (model.charAt(2) === 'G' || model.charAt(2) === 'L') { totalGas += cycles * 0.39;
                             totalElectric += cycles * 0.19;
-                        } else if (model.startsWith('STE')) {
-                            totalElectric += cycles * 4.5;
+                        } else if (model.charAt(2) === 'E') { totalElectric += cycles * 4.5;
                         } else {
                             totalWater += cycles * 77;
                             totalElectric += cycles * 0.35;
@@ -344,3 +342,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
