@@ -3,7 +3,7 @@ import { MapPin, DollarSign, RefreshCw, Activity, Droplets, Flame } from 'lucide
 import StatCard from './StatCard';
 import MonthSelector from './MonthSelector';
 import LocationRevenueTable from './LocationRevenueTable';
-import { getLocations, getLocationRevenue, getLocationCycleUsage, getMachines } from '../services/api';
+import { getLocations, getLocationRevenue, getLocationCycleUsage } from '../services/api';
 
 const Dashboard = () => {
     const [stats, setStats] = useState({
@@ -151,18 +151,18 @@ const Dashboard = () => {
                 getLocationCycleUsage(locationIds, startDate, endDate)
             ]);
 
-            const machinesPromises = locations.map(loc => getMachines(loc.id));
-            const machinesResults = await Promise.all(machinesPromises);
-
-            let totalMachines = 0;
-            machinesResults.forEach(result => {
-                const machines = result?.items || result?.data || (Array.isArray(result) ? result : []);
-                totalMachines += machines.length;
-            });
 
             const revenueList = revenueData?.data?.locations || [];
             const prevRevenueList = prevRevenueData?.data?.locations || [];
             const cycleList = cycleData?.data?.locations || [];
+
+            // Calculate total machines from revenue data
+            let totalMachines = 0;
+            revenueList.forEach(loc => {
+                if (loc.machines && Array.isArray(loc.machines)) {
+                    totalMachines += loc.machines.length;
+                }
+            });
 
             const revenueByLocation = processRevenueByLocation(revenueList, prevRevenueList, locations, cycleList);
 
