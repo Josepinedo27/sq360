@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import { MapPin, TrendingUp, Search, Activity, Droplets, Flame, Zap } from 'lucide-react';
 
 const LocationRevenueTable = ({ locationRevenue, loading }) => {
@@ -118,6 +118,33 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                             <th onClick={() => handleSort('name')} className="sortable">
                                 Locación {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
                             </th>
+                            <th onClick={() => handleSort('machines')} className="sortable">
+                                Máquinas {sortBy === 'machines' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            </th>
+                            <th onClick={() => handleSort('revenue')} className="sortable">
+                                Revenue {sortBy === 'revenue' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            </th>
+                            <th onClick(() => handleSort('prevRevenue')} className="sortable">
+                            Mes Anterior {sortBy === 'prevRevenue' && (sortOrder === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th onClick={() => handleSort('cycles')} className="sortable">
+                            Ciclos {sortBy === 'cycles' && (sortOrder === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th onClick={() => handleSort('water')} className="sortable">
+                            Agua (L) {sortBy === 'water' && (sortOrder === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th onClick={() => handleSort('gas')} className="sortable">
+                            Gas (m³) {sortBy === 'gas' && (sortOrder === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th onClick={() => handleSort('electric')} className="sortable">
+                            Electricidad (kW/h) {sortBy === 'electric' && (sortOrder === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th>% del Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredAndSorted.map((location) => (
+                        <React.Fragment key={location.locationId}>
                             <tr
                                 className={`location-row ${expandedLocationId === location.locationId ? 'expanded' : ''}`}
                                 onClick={() => handleRowClick(location.locationId)}
@@ -195,18 +222,18 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                                 </tr>
                             )}
                         </React.Fragment>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                    ))}
+                </tbody>
+            </table>
+        </div>
 
             {
-                filteredAndSorted.length === 0 && (
-                    <div className="no-results">
-                        <p>No se encontraron locaciones que coincidan con "{searchTerm}"</p>
-                    </div>
-                )
-            }
+        filteredAndSorted.length === 0 && (
+            <div className="no-results">
+                <p>No se encontraron locaciones que coincidan con "{searchTerm}"</p>
+            </div>
+        )
+    }
         </div >
     );
 };
