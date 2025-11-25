@@ -192,10 +192,18 @@ const Dashboard = () => {
                         const cycles = parseInt(m.totalCycles || 0, 10);
                         totalCycles += cycles;
                         const model = (m.model || '').toUpperCase();
+                        const typeChar = model.charAt(2);
 
-                        if (model.charAt(2) === 'G' || model.charAt(2) === 'L') { totalGas += cycles * 0.39;
+                        // Debug: log global calculation
+                        if (cycles > 0 && totalCycles < 300) {
+                            console.log('GLOBAL:', m.name, 'Model:', model, 'Char:', typeChar, 'Cycles:', cycles, 'Gas so far:', totalGas);
+                        }
+
+                        if (model.charAt(2) === 'G' || model.charAt(2) === 'L') {
+                            totalGas += cycles * 0.39;
                             totalElectric += cycles * 0.19;
-                        } else if (model.charAt(2) === 'E') { totalElectric += cycles * 4.5;
+                        } else if (model.charAt(2) === 'E') {
+                            totalElectric += cycles * 4.5;
                         } else {
                             totalWater += cycles * 77;
                             totalElectric += cycles * 0.35;
