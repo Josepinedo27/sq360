@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MapPin, DollarSign, RefreshCw, Activity, Droplets, Flame } from 'lucide-react';
+import { MapPin, DollarSign, RefreshCw, Activity, Droplets, Flame, Zap } from 'lucide-react';
 import StatCard from './StatCard';
 import MonthSelector from './MonthSelector';
 import LocationRevenueTable from './LocationRevenueTable';
