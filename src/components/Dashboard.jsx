@@ -93,18 +93,12 @@ const Dashboard = () => {
                         totalCycles += cycles;
                         const model = (m.model || '').toUpperCase();
 
-                        // Debug: log model to see what we're getting
-                        if (cycles > 0) {
-                            console.log('Machine:', m.name, 'Model:', model, 'Cycles:', cycles);
-                        }
-
-                        // Detect machine type by model prefix
-                        if (model.startsWith('STG')) {
-                            // Gas dryer (STG)
+                        // Detect machine type by 3rd character (G=Gas, E=Electric, L=Propane)
+                        if (model.charAt(2) === 'G' || model.charAt(2) === 'L') {
                             gasConsumption += cycles * 0.39;  // Gas: 0.39 m³ per cycle
                             electricConsumption += cycles * 0.19;  // Electric: 0.19 kW/hr per cycle
-                        } else if (model.startsWith('STE')) {
-                            // Electric dryer (STE) - NO gas
+                        } else if (model.charAt(2) === 'E') {
+                            // Electric dryer
                             electricConsumption += cycles * 4.5;  // Electric: 4.5 kW/hr per cycle
                         } else {
                             // Washer (or unknown - assume washer)
@@ -186,28 +180,16 @@ const Dashboard = () => {
             let totalGas = 0;
             let totalElectric = 0;
 
-            console.log('=== GLOBAL CALC START ===', 'Locations:', cycleList.length);
-
             cycleList.forEach(loc => {
                 if (loc.machines) {
                     loc.machines.forEach(m => {
                         const cycles = parseInt(m.totalCycles || 0, 10);
                         totalCycles += cycles;
                         const model = (m.model || '').toUpperCase();
-                        const typeChar = model.charAt(2);
-
-                        // Debug: log global calculation
-                        if (cycles > 0 && totalCycles < 300) {
-                            console.log('BEFORE:', m.name, 'Model:', model, 'Char:', typeChar, 'Cycles:', cycles, 'Gas:', totalGas);
-                        }
 
                         if (model.charAt(2) === 'G' || model.charAt(2) === 'L') {
-                            const gasAdded = cycles * 0.39;
-                            totalGas += gasAdded;
+                            totalGas += cycles * 0.39;
                             totalElectric += cycles * 0.19;
-                            if (cycles > 0 && totalCycles < 300) {
-                                console.log('>>> GAS ADDED:', gasAdded, 'New total:', totalGas);
-                            }
                         } else if (model.charAt(2) === 'E') {
                             totalElectric += cycles * 4.5;
                         } else {
@@ -217,8 +199,6 @@ const Dashboard = () => {
                     });
                 }
             });
-
-            console.log('=== FINAL TOTALS ===', 'Gas:', totalGas, 'Water:', totalWater, 'Electric:', totalElectric);
 
             const avgCyclesPerMachine = totalMachines > 0 ? (totalCycles / totalMachines) : 0;
 
