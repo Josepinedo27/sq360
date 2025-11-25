@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { MapPin, TrendingUp, Search, Activity, Droplets, Flame, Zap } from 'lucide-react';
 
 const LocationRevenueTable = ({ locationRevenue, loading }) => {
@@ -72,7 +72,7 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
     if (loading) {
         return (
             <div className="location-revenue-table loading">
-                <p>Cargando datos de revenue por locación...</p>
+                <p>Cargando datos de revenue por locaci�n...</p>
             </div>
         );
     }
@@ -80,12 +80,12 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
     return (
         <div className="location-revenue-table">
             <div className="table-header">
-                <h2>Revenue por Locación</h2>
+                <h2>Revenue por Locaci�n</h2>
                 <div className="search-box">
                     <Search size={18} />
                     <input
                         type="text"
-                        placeholder="Buscar locación..."
+                        placeholder="Buscar locaci�n..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -116,28 +116,28 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                     <thead>
                         <tr>
                             <th onClick={() => handleSort('name')} className="sortable">
-                                Locación {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
+                                Locaci�n {sortBy === 'name' && (sortOrder === 'asc' ? '?' : '?')}
                             </th>
                             <th onClick={() => handleSort('machines')} className="sortable">
-                                Máquinas {sortBy === 'machines' && (sortOrder === 'asc' ? '↑' : '↓')}
+                                M�quinas {sortBy === 'machines' && (sortOrder === 'asc' ? '?' : '?')}
                             </th>
                             <th onClick={() => handleSort('revenue')} className="sortable">
-                                Revenue {sortBy === 'revenue' && (sortOrder === 'asc' ? '↑' : '↓')}
+                                Revenue {sortBy === 'revenue' && (sortOrder === 'asc' ? '?' : '?')}
                             </th>
-                            <th onClick(() => handleSort('prevRevenue')} className="sortable">
-                            Mes Anterior {sortBy === 'prevRevenue' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            <th onClick={() => handleSort('prevRevenue')} className="sortable">
+                            Mes Anterior {sortBy === 'prevRevenue' && (sortOrder === 'asc' ? '?' : '?')}
                         </th>
                         <th onClick={() => handleSort('cycles')} className="sortable">
-                            Ciclos {sortBy === 'cycles' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            Ciclos {sortBy === 'cycles' && (sortOrder === 'asc' ? '?' : '?')}
                         </th>
                         <th onClick={() => handleSort('water')} className="sortable">
-                            Agua (L) {sortBy === 'water' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            Agua (L) {sortBy === 'water' && (sortOrder === 'asc' ? '?' : '?')}
                         </th>
                         <th onClick={() => handleSort('gas')} className="sortable">
-                            Gas (m³) {sortBy === 'gas' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            Gas (m�) {sortBy === 'gas' && (sortOrder === 'asc' ? '?' : '?')}
                         </th>
                         <th onClick={() => handleSort('electric')} className="sortable">
-                            Electricidad (kW/h) {sortBy === 'electric' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            Electricidad (kW/h) {sortBy === 'electric' && (sortOrder === 'asc' ? '?' : '?')}
                         </th>
                         <th>% del Total</th>
                     </tr>
@@ -203,12 +203,12 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                                                         {(location.gasConsumption || 0).toLocaleString(undefined, {
                                                             minimumFractionDigits: 2,
                                                             maximumFractionDigits: 2
-                                                        })} m³
+                                                        })} m�
                                                     </span>
                                                 </div>
                                                 <div className="detail-item">
                                                     <Zap size={20} />
-                                                    <span className="detail-label">Consumo Eléctrico</span>
+                                                    <span className="detail-label">Consumo El�ctrico</span>
                                                     <span className="detail-value">
                                                         {(location.electricConsumption || 0).toLocaleString(undefined, {
                                                             minimumFractionDigits: 2,
