@@ -3,7 +3,7 @@ import { MapPin, DollarSign, RefreshCw, Activity, Droplets, Flame, Zap } from 'l
 import StatCard from './StatCard';
 import MonthSelector from './MonthSelector';
 import LocationRevenueTable from './LocationRevenueTable';
-import { getLocations, getLocationRevenue, getLocationCycleUsage } from '../services/api';
+import { getLocations, getLocationRevenue, getLocationCycleUsage, getMachines } from '../services/api';
 
 const Dashboard = () => {
     const [stats, setStats] = useState({
@@ -30,7 +30,7 @@ const Dashboard = () => {
         };
     };
 
-    const processRevenueByLocation = (revenueList, prevRevenueList, locations, cycleList) => {
+    const processRevenueByLocation = (revenueList, prevRevenueList, locations, cycleList, machineDetailsMap) => {
         const locationMap = {};
         locations.forEach(loc => {
             locationMap[loc.id] = {
@@ -91,10 +91,11 @@ const Dashboard = () => {
                     loc.machines.forEach((m, index) => {
                         const cycles = parseInt(m.totalCycles || 0, 10);
                         totalCycles += cycles;
-                        const model = (m.model || '').toUpperCase();
                         const machineNumber = index + 1; // 1-indexed machine number
+                        const machineDetails = machineDetailsMap[m.id] || {};
+                        const model = (machineDetails.description || '').toUpperCase();
 
-                        // Detect machine type by 3rd character (G=Gas, E=Electric, L=Propane)
+                        // Detect machine type by  3rd character (G=Gas, E=Electric, L=Propane)
                         if (model.charAt(2) === 'G' || model.charAt(2) === 'L') {
                             // Gas/Propane dryer
                             gasConsumption += cycles * 0.39;  // Gas: 0.39 m³ per cycle
@@ -156,6 +157,22 @@ const Dashboard = () => {
 
             const locationIds = locations.map(loc => loc.id);
 
+            // Fetch machine details from /machines endpoint to get description (model)
+            const machineDetailsMap = {};
+            await Promise.all(locations.map(async (loc) => {
+                try {
+                    const machinesData = await getMachines(loc.id);
+                    const machines = machinesData?.data || [];
+                    machines.forEach(machine => {
+                        machineDetailsMap[machine.id] = {
+                            description: machine.description || machine.name || ''
+                        };
+                    });
+                } catch (error) {
+                    console.error(`Error fetching machines for location ${loc.id}:`, error);
+                }
+            }));
+
             const [revenueData, prevRevenueData, cycleData] = await Promise.all([
                 getLocationRevenue(locationIds, startDate, endDate),
                 getLocationRevenue(locationIds, prevStartDate, prevEndDate),
@@ -175,7 +192,7 @@ const Dashboard = () => {
                 }
             });
 
-            const revenueByLocation = processRevenueByLocation(revenueList, prevRevenueList, locations, cycleList);
+            const revenueByLocation = processRevenueByLocation(revenueList, prevRevenueList, locations, cycleList, machineDetailsMap);
 
             const totalRevenue = revenueByLocation.reduce((sum, loc) => sum + loc.totalRevenue, 0);
             const prevTotalRevenue = revenueByLocation.reduce((sum, loc) => sum + loc.prevTotalRevenue, 0);
@@ -190,8 +207,9 @@ const Dashboard = () => {
                     loc.machines.forEach((m, index) => {
                         const cycles = parseInt(m.totalCycles || 0, 10);
                         totalCycles += cycles;
-                        const model = (m.model || '').toUpperCase();
                         const machineNumber = index + 1; // 1-indexed machine number
+                        const machineDetails = machineDetailsMap[m.id] || {};
+                        const model = (machineDetails.description || '').toUpperCase();
 
                         if (model.charAt(2) === 'G' || model.charAt(2) === 'L') {
                             totalGas += cycles * 0.39;
