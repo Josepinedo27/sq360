@@ -88,20 +88,25 @@ const Dashboard = () => {
                     let electricConsumption = 0;
                     let totalCycles = 0;
 
-                    loc.machines.forEach(m => {
+                    loc.machines.forEach((m, index) => {
                         const cycles = parseInt(m.totalCycles || 0, 10);
                         totalCycles += cycles;
                         const model = (m.model || '').toUpperCase();
+                        const machineNumber = index + 1; // 1-indexed machine number
 
                         // Detect machine type by 3rd character (G=Gas, E=Electric, L=Propane)
                         if (model.charAt(2) === 'G' || model.charAt(2) === 'L') {
+                            // Gas/Propane dryer
                             gasConsumption += cycles * 0.39;  // Gas: 0.39 m³ per cycle
                             electricConsumption += cycles * 0.19;  // Electric: 0.19 kW/hr per cycle
                         } else if (model.charAt(2) === 'E') {
                             // Electric dryer
                             electricConsumption += cycles * 4.5;  // Electric: 4.5 kW/hr per cycle
-                        } else {
-                            // Washer (or unknown - assume washer)
+                        }
+
+                        // Water consumption: Only EVEN-numbered machines (washers)
+                        // Odd = Dryers, Even = Washers
+                        if (machineNumber % 2 === 0) {
                             waterConsumption += cycles * 77;  // Water: 77 L per cycle
                             electricConsumption += cycles * 0.35;  // Electric: 0.35 kW/hr per cycle
                         }
@@ -182,17 +187,22 @@ const Dashboard = () => {
 
             cycleList.forEach(loc => {
                 if (loc.machines) {
-                    loc.machines.forEach(m => {
+                    loc.machines.forEach((m, index) => {
                         const cycles = parseInt(m.totalCycles || 0, 10);
                         totalCycles += cycles;
                         const model = (m.model || '').toUpperCase();
+                        const machineNumber = index + 1; // 1-indexed machine number
 
                         if (model.charAt(2) === 'G' || model.charAt(2) === 'L') {
                             totalGas += cycles * 0.39;
                             totalElectric += cycles * 0.19;
                         } else if (model.charAt(2) === 'E') {
                             totalElectric += cycles * 4.5;
-                        } else {
+                        }
+
+                        // Water consumption: Only EVEN-numbered machines (washers)
+                        // Odd = Dryers, Even = Washers
+                        if (machineNumber % 2 === 0) {
                             totalWater += cycles * 77;
                             totalElectric += cycles * 0.35;
                         }
@@ -321,7 +331,7 @@ const Dashboard = () => {
                     color="#F59E0B"
                 />
                 <StatCard
-                    title="Consumo Eléctrico"
+                    title="Consumo Electrico"
                     value={`${stats.electricConsumption.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kW/h`}
                     subtext="Total estimado"
                     icon={Zap}
