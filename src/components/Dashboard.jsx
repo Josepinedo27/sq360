@@ -3,7 +3,7 @@ import { MapPin, DollarSign, RefreshCw, Activity, Droplets, Flame, Zap } from 'l
 import StatCard from './StatCard';
 import MonthSelector from './MonthSelector';
 import LocationRevenueTable from './LocationRevenueTable';
-import { getLocations, getLocationRevenue, getLocationCycleUsage, getMachines } from '../services/api';
+import { getLocations, getLocationRevenue, getLocationCycleUsage } from '../services/api';
 
 const Dashboard = () => {
     const [stats, setStats] = useState({
@@ -30,7 +30,7 @@ const Dashboard = () => {
         };
     };
 
-    const processRevenueByLocation = (revenueList, prevRevenueList, locations, cycleList, machineDetailsMap) => {
+    const processRevenueByLocation = (revenueList, prevRevenueList, locations, cycleList) => {
         const locationMap = {};
         locations.forEach(loc => {
             locationMap[loc.id] = {
@@ -92,30 +92,17 @@ const Dashboard = () => {
                         const cycles = parseInt(m.totalCycles || 0, 10);
                         totalCycles += cycles;
                         const machineNumber = index + 1; // 1-indexed machine number
-                        const machineDetails = machineDetailsMap[m.id] || {};
-                        const model = (machineDetails.description || '').toUpperCase();
-
-                        // Detect machine type by  3rd character (G=Gas, E=Electric, L=Propane)
-                        if (model.charAt(2) === 'G' || model.charAt(2) === 'L') {
-                            // Gas/Propane dryer
-                            gasConsumption += cycles * 0.39;  // Gas: 0.39 m³ per cycle
-                            electricConsumption += cycles * 0.19;  // Electric: 0.19 kW/hr per cycle
-                        } else if (model.charAt(2) === 'E') {
-                            // Electric dryer
-                            electricConsumption += cycles * 4.5;  // Electric: 4.5 kW/hr per cycle
-                        }
 
                         // Water consumption: Only EVEN-numbered machines (washers)
                         // Odd = Dryers, Even = Washers
                         if (machineNumber % 2 === 0) {
                             waterConsumption += cycles * 77;  // Water: 77 L per cycle
-                            electricConsumption += cycles * 0.35;  // Electric: 0.35 kW/hr per cycle
                         }
                     });
 
                     locationMap[loc.id].waterConsumption = waterConsumption;
-                    locationMap[loc.id].gasConsumption = gasConsumption;
-                    locationMap[loc.id].electricConsumption = electricConsumption;
+                    locationMap[loc.id].gasConsumption = 0;
+                    locationMap[loc.id].electricConsumption = 0;
                     locationMap[loc.id].totalCycles = totalCycles;
                 }
             });
@@ -157,22 +144,6 @@ const Dashboard = () => {
 
             const locationIds = locations.map(loc => loc.id);
 
-            // Fetch machine details from /machines endpoint to get description (model)
-            const machineDetailsMap = {};
-            await Promise.all(locations.map(async (loc) => {
-                try {
-                    const machinesData = await getMachines(loc.id);
-                    const machines = machinesData?.data || [];
-                    machines.forEach(machine => {
-                        machineDetailsMap[machine.id] = {
-                            description: machine.description || machine.name || ''
-                        };
-                    });
-                } catch (error) {
-                    console.error(`Error fetching machines for location ${loc.id}:`, error);
-                }
-            }));
-
             const [revenueData, prevRevenueData, cycleData] = await Promise.all([
                 getLocationRevenue(locationIds, startDate, endDate),
                 getLocationRevenue(locationIds, prevStartDate, prevEndDate),
@@ -192,7 +163,7 @@ const Dashboard = () => {
                 }
             });
 
-            const revenueByLocation = processRevenueByLocation(revenueList, prevRevenueList, locations, cycleList, machineDetailsMap);
+            const revenueByLocation = processRevenueByLocation(revenueList, prevRevenueList, locations, cycleList);
 
             const totalRevenue = revenueByLocation.reduce((sum, loc) => sum + loc.totalRevenue, 0);
             const prevTotalRevenue = revenueByLocation.reduce((sum, loc) => sum + loc.prevTotalRevenue, 0);
@@ -202,27 +173,17 @@ const Dashboard = () => {
             let totalGas = 0;
             let totalElectric = 0;
 
+            // Calculate global water consumption from washers (even-numbered machines)
             cycleList.forEach(loc => {
                 if (loc.machines) {
                     loc.machines.forEach((m, index) => {
                         const cycles = parseInt(m.totalCycles || 0, 10);
                         totalCycles += cycles;
-                        const machineNumber = index + 1; // 1-indexed machine number
-                        const machineDetails = machineDetailsMap[m.id] || {};
-                        const model = (machineDetails.description || '').toUpperCase();
+                        const machineNumber = index + 1;
 
-                        if (model.charAt(2) === 'G' || model.charAt(2) === 'L') {
-                            totalGas += cycles * 0.39;
-                            totalElectric += cycles * 0.19;
-                        } else if (model.charAt(2) === 'E') {
-                            totalElectric += cycles * 4.5;
-                        }
-
-                        // Water consumption: Only EVEN-numbered machines (washers)
-                        // Odd = Dryers, Even = Washers
+                        // Water: Only EVEN-numbered machines (washers)
                         if (machineNumber % 2 === 0) {
                             totalWater += cycles * 77;
-                            totalElectric += cycles * 0.35;
                         }
                     });
                 }
