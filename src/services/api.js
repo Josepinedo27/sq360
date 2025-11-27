@@ -107,3 +107,24 @@ export const getLocationCycleUsage = async (locationIds, startDate, endDate) => 
         throw error;
     }
 };
+
+export const getLocationLifetimeCycles = async (locationIds) => {
+    try {
+        // Use a very old start date to get "lifetime" cycles
+        const startDate = '2000-01-01T00:00:00.000Z';
+        const endDate = new Date().toISOString();
+
+        const response = await api.get('/reports', {
+            params: {
+                reportId: 'AUDIT_CYCLE_USAGE',
+                locationIds: Array.isArray(locationIds) ? locationIds.join(',') : locationIds,
+                startDate,
+                endDate
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching location lifetime cycles:', error);
+        throw error;
+    }
+};

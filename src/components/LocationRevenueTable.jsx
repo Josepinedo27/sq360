@@ -2,239 +2,276 @@ import React, { useState, useMemo } from 'react';
 import { MapPin, TrendingUp, Search, Activity, Droplets, Flame, Zap } from 'lucide-react';
 
 const LocationRevenueTable = ({ locationRevenue, loading }) => {
+    const [sortConfig, setSortConfig] = useState({ key: 'totalRevenue', direction: 'desc' });
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortBy, setSortBy] = useState('revenue'); // 'revenue' | 'name' | 'machines' | 'cycles' | 'water' | 'gas' | 'electric'
-    const [sortOrder, setSortOrder] = useState('desc'); // 'asc' | 'desc'
-    const [expandedLocationId, setExpandedLocationId] = useState(null);
 
-    const filteredAndSorted = useMemo(() => {
-        let filtered = locationRevenue.filter(loc =>
-            loc.locationName.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-
-        filtered.sort((a, b) => {
-            let comparison = 0;
-            switch (sortBy) {
-                case 'revenue':
-                    comparison = a.totalRevenue - b.totalRevenue;
-                    break;
-                case 'prevRevenue':
-                    comparison = a.prevTotalRevenue - b.prevTotalRevenue;
-                    break;
-                case 'name':
-                    comparison = a.locationName.localeCompare(b.locationName);
-                    break;
-                case 'machines':
-                    comparison = a.machineCount - b.machineCount;
-                    break;
-                case 'cycles':
-                    comparison = a.totalCycles - b.totalCycles;
-                    break;
-                case 'water':
-                    comparison = a.waterConsumption - b.waterConsumption;
-                    break;
-                case 'gas':
-                    comparison = a.gasConsumption - b.gasConsumption;
-                    break;
-                case 'electric':
-                    comparison = a.electricConsumption - b.electricConsumption;
-                    break;
-                default:
-                    comparison = 0;
-            }
-            return sortOrder === 'asc' ? comparison : -comparison;
-        });
-
-        return filtered;
-    }, [locationRevenue, searchTerm, sortBy, sortOrder]);
-
-    const handleSort = (column) => {
-        if (sortBy === column) {
-            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-        } else {
-            setSortBy(column);
-            setSortOrder('desc');
+    const sortedData = useMemo(() => {
+        let sortableItems = [...locationRevenue];
+        if (sortConfig !== null) {
+            sortableItems.sort((a, b) => {
+                if (a[sortConfig.key] < b[sortConfig.key]) {
+                    return sortConfig.direction === 'asc' ? -1 : 1;
+                }
+                if (a[sortConfig.key] > b[sortConfig.key]) {
+                    return sortConfig.direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
         }
+        return sortableItems;
+    }, [locationRevenue, sortConfig]);
+
+    const filteredData = sortedData.filter(location =>
+        location.locationName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const requestSort = (key) => {
+        let direction = 'desc';
+        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'desc') {
+            direction = 'asc';
+        }
+        setSortConfig({ key, direction });
     };
-
-    const handleRowClick = (locationId) => {
-        setExpandedLocationId(expandedLocationId === locationId ? null : locationId);
-    };
-
-    const totalRevenue = useMemo(() => {
-        return locationRevenue.reduce((sum, loc) => sum + loc.totalRevenue, 0);
-    }, [locationRevenue]);
-
-    const totalPrevRevenue = useMemo(() => {
-        return locationRevenue.reduce((sum, loc) => sum + loc.prevTotalRevenue, 0);
-    }, [locationRevenue]);
 
     if (loading) {
-        return (
-            <div className="location-revenue-table loading">
-                <p>Cargando datos de revenue por locación...</p>
-            </div>
-        );
+        return <div className="table-loading">Cargando datos de locaciones...</div>;
     }
 
     return (
-        <div className="location-revenue-table">
+        <div className="table-card">
             <div className="table-header">
-                <h2>Revenue por Locación</h2>
-                <div className="search-box">
-                    <Search size={18} />
+                <h2>Desglose por LocaciÃ³n</h2>
+                <div className="search-container">
+                    <Search size={18} color="#6B7280" />
                     <input
                         type="text"
-                        placeholder="Buscar locación..."
+                        placeholder="Buscar locaciÃ³n..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input"
                     />
                 </div>
             </div>
 
-            <div className="table-summary">
-                <div className="summary-item">
-                    <span className="summary-label">Total Locaciones:</span>
-                    <span className="summary-value">{filteredAndSorted.length}</span>
-                </div>
-                <div className="summary-item">
-                    <span className="summary-label">Revenue Total:</span>
-                    <span className="summary-value">
-                        ${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                </div>
-                <div className="summary-item">
-                    <span className="summary-label">Mes Anterior:</span>
-                    <span className="summary-value" style={{ color: 'var(--text-secondary)' }}>
-                        ${totalPrevRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                </div>
-            </div>
-
-            <div className="table-container">
-                <table>
+            <div className="table-responsive">
+                <table className="revenue-table">
                     <thead>
                         <tr>
-                            <th onClick={() => handleSort('name')} className="sortable">
-                                Locación {sortBy === 'name' && (sortOrder === 'asc' ? '?' : '?')}
-                            </th>
-                            <th onClick={() => handleSort('machines')} className="sortable">
-                                Máquinas {sortBy === 'machines' && (sortOrder === 'asc' ? '?' : '?')}
-                            </th>
-                            <th onClick={() => handleSort('revenue')} className="sortable">
-                                Revenue {sortBy === 'revenue' && (sortOrder === 'asc' ? '?' : '?')}
-                            </th>
-                            <th onClick={() => handleSort('prevRevenue')} className="sortable">
-                            Mes Anterior {sortBy === 'prevRevenue' && (sortOrder === 'asc' ? '?' : '?')}
-                        </th>
-                        <th onClick={() => handleSort('cycles')} className="sortable">
-                            Ciclos {sortBy === 'cycles' && (sortOrder === 'asc' ? '?' : '?')}
-                        </th>
-                        <th onClick={() => handleSort('water')} className="sortable">
-                            Agua (L) {sortBy === 'water' && (sortOrder === 'asc' ? '?' : '?')}
-                        </th>
-                        <th onClick={() => handleSort('gas')} className="sortable">
-                            Gas (m³) {sortBy === 'gas' && (sortOrder === 'asc' ? '?' : '?')}
-                        </th>
-                        <th onClick={() => handleSort('electric')} className="sortable">
-                            Electricidad (kW/h) {sortBy === 'electric' && (sortOrder === 'asc' ? '?' : '?')}
-                        </th>
-                        <th>% del Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredAndSorted.map((location) => (
-                        <React.Fragment key={location.locationId}>
-                            <tr
-                                className={`location-row ${expandedLocationId === location.locationId ? 'expanded' : ''}`}
-                                onClick={() => handleRowClick(location.locationId)}
-                            >
-                                <td className="location-name">
-                                    <MapPin size={16} />
-                                    <span>{location.locationName}</span>
+                            <th onClick={() => requestSort('locationName')}>LocaciÃ³n</th>
+                            <th onClick={() => requestSort('totalRevenue')}>Revenue</th>
+                            <th onClick={() => requestSort('totalCycles')}>Ciclos</th>
+                            <th onClick={() => requestSort('waterConsumption')}>Agua (L)</th>
+                            <th onClick={() => requestSort('gasConsumption')}>Gas (mÂ³)</th>
+                            <th onClick={() => requestSort('electricityConsumption')}>Elec (kWh)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredData.map((location) => (
+                            <tr key={location.locationId}>
+                                <td className="location-cell">
+                                    <div className="location-icon">
+                                        <MapPin size={16} color="#fff" />
+                                    </div>
+                                    <span className="location-name">{location.locationName}</span>
                                 </td>
-                                <td className="machine-count">{location.machineCount}</td>
-                                <td className="revenue">
+                                <td className="revenue-cell">
                                     ${location.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </td>
-                                <td className="revenue" style={{ color: 'var(--text-secondary)' }}>
-                                    ${location.prevTotalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                <td>
+                                    <div className="cycles-cell">
+                                        <Activity size={14} color="#6B7280" />
+                                        {location.totalCycles.toLocaleString()}
+                                    </div>
                                 </td>
-                                <td className="cycles">
-                                    {location.totalCycles?.toLocaleString() || 0}
+                                <td>
+                                    <div className="consumption-cell water">
+                                        <Droplets size={14} />
+                                        {(location.waterConsumption || 0).toLocaleString()}
+                                    </div>
                                 </td>
-                                <td className="consumption">
-                                    {location.waterConsumption?.toLocaleString() || 0}
+                                <td>
+                                    <div className="consumption-cell gas">
+                                        <Flame size={14} />
+                                        {(location.gasConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </div>
                                 </td>
-                                <td className="consumption">
-                                    {(location.gasConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </td>
-                                <td className="consumption">
-                                    {(location.electricConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </td>
-                                <td className="percentage">
-                                    {totalRevenue > 0 ? ((location.totalRevenue / totalRevenue) * 100).toFixed(1) : 0}%
+                                <td>
+                                    <div className="consumption-cell electricity">
+                                        <Zap size={14} />
+                                        {(location.electricityConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </div>
                                 </td>
                             </tr>
-                            {expandedLocationId === location.locationId && (
-                                <tr className="location-detail-row">
-                                    <td colSpan="9">
-                                        <div className="location-detail-panel">
-                                            <h4>Detalles de Consumo - {location.locationName}</h4>
-                                            <div className="detail-grid">
-                                                <div className="detail-item">
-                                                    <Activity size={20} />
-                                                    <span className="detail-label">Ciclos Totales</span>
-                                                    <span className="detail-value">
-                                                        {(location.totalCycles || 0).toLocaleString()}
-                                                    </span>
-                                                </div>
-                                                <div className="detail-item">
-                                                    <Droplets size={20} />
-                                                    <span className="detail-label">Consumo Agua</span>
-                                                    <span className="detail-value">
-                                                        {(location.waterConsumption || 0).toLocaleString()} L
-                                                    </span>
-                                                </div>
-                                                <div className="detail-item">
-                                                    <Flame size={20} />
-                                                    <span className="detail-label">Consumo Gas</span>
-                                                    <span className="detail-value">
-                                                        {(location.gasConsumption || 0).toLocaleString(undefined, {
-                                                            minimumFractionDigits: 2,
-                                                            maximumFractionDigits: 2
-                                                        })} m³
-                                                    </span>
-                                                </div>
-                                                <div className="detail-item">
-                                                    <Zap size={20} />
-                                                    <span className="detail-label">Consumo Eléctrico</span>
-                                                    <span className="detail-value">
-                                                        {(location.electricConsumption || 0).toLocaleString(undefined, {
-                                                            minimumFractionDigits: 2,
-                                                            maximumFractionDigits: 2
-                                                        })} kW/h
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            )}
-                        </React.Fragment>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-
-            {
-        filteredAndSorted.length === 0 && (
-            <div className="no-results">
-                <p>No se encontraron locaciones que coincidan con "{searchTerm}"</p>
+                        ))}
+                    </tbody>
+                </table>
             </div>
-        )
-    }
-        </div >
+
+            {filteredData.length === 0 && (
+                <div className="empty-state">
+                    <p>No se encontraron locaciones que coincidan con "{searchTerm}"</p>
+                </div>
+            )}
+
+            <style jsx>{`
+                .table-card {
+                    background: var(--card-bg);
+                    border-radius: 16px;
+                    padding: 1.5rem;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                    margin-bottom: 2rem;
+                    border: 1px solid var(--border-color);
+                }
+
+                .table-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 1.5rem;
+                    flex-wrap: wrap;
+                    gap: 1rem;
+                }
+
+                .table-header h2 {
+                    margin: 0;
+                    font-size: 1.25rem;
+                    color: var(--text-primary);
+                }
+
+                .search-container {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                }
+
+                .search-container svg {
+                    position: absolute;
+                    left: 12px;
+                    pointer-events: none;
+                }
+
+                .search-input {
+                    padding: 0.5rem 1rem 0.5rem 2.5rem;
+                    border-radius: 8px;
+                    border: 1px solid var(--border-color);
+                    background: var(--bg-primary);
+                    color: var(--text-primary);
+                    font-size: 0.9rem;
+                    width: 250px;
+                    transition: all 0.2s;
+                }
+
+                .search-input:focus {
+                    outline: none;
+                    border-color: var(--accent-color);
+                    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+                }
+
+                .table-responsive {
+                    overflow-x: auto;
+                }
+
+                .revenue-table {
+                    width: 100%;
+                    border-collapse: separate;
+                    border-spacing: 0;
+                }
+
+                .revenue-table th {
+                    text-align: left;
+                    padding: 1rem;
+                    color: var(--text-secondary);
+                    font-weight: 500;
+                    font-size: 0.85rem;
+                    border-bottom: 1px solid var(--border-color);
+                    cursor: pointer;
+                    transition: color 0.2s;
+                    white-space: nowrap;
+                }
+
+                .revenue-table th:hover {
+                    color: var(--text-primary);
+                }
+
+                .revenue-table td {
+                    padding: 1rem;
+                    border-bottom: 1px solid var(--border-color);
+                    color: var(--text-primary);
+                    font-size: 0.95rem;
+                }
+
+                .revenue-table tr:last-child td {
+                    border-bottom: none;
+                }
+
+                .location-cell {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                }
+
+                .location-icon {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 8px;
+                    background: var(--accent-color);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                }
+
+                .location-name {
+                    font-weight: 500;
+                }
+
+                .revenue-cell {
+                    font-weight: 600;
+                    color: var(--text-primary);
+                }
+
+                .cycles-cell {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    color: var(--text-secondary);
+                }
+
+                .consumption-cell {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    font-size: 0.9rem;
+                }
+
+                .consumption-cell.water { color: #0EA5E9; }
+                .consumption-cell.gas { color: #F59E0B; }
+                .consumption-cell.electricity { color: #EAB308; }
+
+                .empty-state {
+                    text-align: center;
+                    padding: 2rem;
+                    color: var(--text-secondary);
+                }
+
+                .table-loading {
+                    text-align: center;
+                    padding: 2rem;
+                    color: var(--text-secondary);
+                }
+
+                @media (max-width: 768px) {
+                    .table-header {
+                        flex-direction: column;
+                        align-items: stretch;
+                    }
+                    
+                    .search-input {
+                        width: 100%;
+                    }
+                }
+            `}</style>
+        </div>
     );
 };
 
