@@ -141,6 +141,10 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                                                                     <span className="machine-revenue">
                                                                         ${machine.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                                     </span>
+                                                                    <span className="machine-avg-daily" title="Promedio ciclos por día">
+                                                                        <Activity size={12} />
+                                                                        {(machine.avgDailyCycles || 0).toFixed(1)}/día
+                                                                    </span>
                                                                     <div className="progress-bar-container">
                                                                         <div
                                                                             className="progress-bar"
@@ -384,6 +388,18 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                 .machine-revenue {
                     font-weight: 600;
                     min-width: 80px;
+                }
+
+                .machine-avg-daily {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    font-size: 0.8rem;
+                    color: var(--text-secondary);
+                    background: var(--bg-secondary);
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    white-space: nowrap;
                 }
 
                 .progress-bar-container {

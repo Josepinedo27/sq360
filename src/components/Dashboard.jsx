@@ -55,7 +55,7 @@ const Dashboard = () => {
         return { prevStart, prevEnd };
     };
 
-    const processRevenueByLocation = (revenueList, prevRevenueList, locations, cycleList, currentMachineModels = {}) => {
+    const processRevenueByLocation = (revenueList, prevRevenueList, locations, cycleList, currentMachineModels = {}, daysInRange = 1) => {
         const locationMap = {};
         locations.forEach(loc => {
             locationMap[loc.id] = {
@@ -157,6 +157,22 @@ const Dashboard = () => {
 
                         if (isDryer) dryerCycles += cycles;
                         else if (isWasher) washerCycles += cycles;
+
+                        // Update machine details with cycle info
+                        const machineDetail = locationMap[loc.id].machinesDetails.find(md => md.id === m.id);
+                        if (machineDetail) {
+                            machineDetail.totalCycles = cycles;
+                            machineDetail.avgDailyCycles = daysInRange > 0 ? (cycles / daysInRange) : 0;
+                        } else {
+                            // If machine was not in revenue list (no revenue), add it now?
+                            // Usually we only care about machines with revenue or we want to see all?
+                            // The user asked for "revenue per node", implying we list machines.
+                            // If a machine has 0 revenue but has cycles, it should probably be listed.
+                            // But for now let's stick to updating existing ones or we can push new ones.
+                            // Let's just update existing ones to avoid duplicates if logic is complex.
+                            // Actually, if it's not in revenue list, it means 0 revenue.
+                            // We should probably add it if we want a complete picture, but let's stick to the requested scope first.
+                        }
 
                         // Consumption Logic
                         if (model.startsWith('STE')) {
@@ -331,6 +347,9 @@ const Dashboard = () => {
             const prevStartDateStr = prevStart.toISOString();
             const prevEndDateStr = prevEnd.toISOString();
 
+            // Calculate days in selected range
+            const daysInRange = Math.max(1, Math.ceil((endDateObj - dateRange.startDate) / (1000 * 60 * 60 * 24)) + 1);
+
             const locationIds = locations.map(loc => loc.id);
 
             const [revenueData, prevRevenueData, cycleData, prevCycleData, lifetimeCycleData] = await Promise.all([
@@ -369,7 +388,7 @@ const Dashboard = () => {
                 }
             });
 
-            const revenueByLocation = processRevenueByLocation(revenueList, prevRevenueList, locations, cycleList);
+            const revenueByLocation = processRevenueByLocation(revenueList, prevRevenueList, locations, cycleList, machineModels, daysInRange);
 
             const totalRevenue = revenueByLocation.reduce((sum, loc) => sum + loc.totalRevenue, 0);
             const prevTotalRevenue = revenueByLocation.reduce((sum, loc) => sum + loc.prevTotalRevenue, 0);
@@ -411,9 +430,6 @@ const Dashboard = () => {
             });
 
             const avgCyclesPerMachine = totalMachines > 0 ? (totalCycles / totalMachines) : 0;
-
-            // Calculate days in selected range
-            const daysInRange = Math.max(1, Math.ceil((dateRange.endDate - dateRange.startDate) / (1000 * 60 * 60 * 24)) + 1);
             const avgDailyCycles = totalMachines > 0 ? (totalCycles / (daysInRange * totalMachines)) : 0;
 
             // Initial consumption calculation (will be 0 or based on defaults until models load)
