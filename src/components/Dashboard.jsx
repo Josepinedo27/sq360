@@ -68,7 +68,8 @@ const Dashboard = () => {
                 waterConsumption: 0,
                 gasConsumption: 0,
                 electricityConsumption: 0,
-                totalCycles: 0
+                totalCycles: 0,
+                machinesDetails: []
             };
         });
 
@@ -87,6 +88,15 @@ const Dashboard = () => {
 
                                 if (isCurrent && machine.id) {
                                     locationMap[locationId].machines.add(machine.id);
+
+                                    // Store machine details for breakdown
+                                    // We'll calculate percentage later once we have the full locationTotal
+                                    locationMap[locationId].machinesDetails.push({
+                                        id: machine.id,
+                                        name: machine.name || `Machine ${machine.id}`,
+                                        revenue: amount,
+                                        type: 'Unknown' // Will be updated with node logic later if needed, or just use name
+                                    });
                                 }
                             });
                         }
@@ -102,7 +112,24 @@ const Dashboard = () => {
         };
 
         processList(revenueList, true);
+        processList(revenueList, true);
         processList(prevRevenueList, false);
+
+        // Calculate percentages for machine details
+        Object.values(locationMap).forEach(loc => {
+            if (loc.totalRevenue > 0 && loc.machinesDetails.length > 0) {
+                loc.machinesDetails.forEach(machine => {
+                    machine.percentage = (machine.revenue / loc.totalRevenue) * 100;
+
+                    // Try to determine type from name if possible (Node parity logic)
+                    const match = machine.name.match(/(\d+)(?!.*\d)/);
+                    const nodeNum = match ? parseInt(match[0], 10) : 0;
+                    if (nodeNum > 0) {
+                        machine.type = (nodeNum % 2 !== 0) ? 'Secadora' : 'Lavadora';
+                    }
+                });
+            }
+        });
 
         // Calculate consumption per location
         if (Array.isArray(cycleList)) {
@@ -175,7 +202,8 @@ const Dashboard = () => {
             waterConsumption: loc.waterConsumption,
             gasConsumption: loc.gasConsumption,
             electricityConsumption: loc.electricityConsumption,
-            totalCycles: loc.totalCycles
+            totalCycles: loc.totalCycles,
+            machineDetails: Array.from(loc.machinesDetails || []).sort((a, b) => b.revenue - a.revenue)
         }));
     };
 

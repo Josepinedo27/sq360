@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { MapPin, TrendingUp, Search, Activity, Droplets, Flame, Zap } from 'lucide-react';
+import { MapPin, TrendingUp, Search, Activity, Droplets, Flame, Zap, ChevronDown, ChevronUp } from 'lucide-react';
 
 const LocationRevenueTable = ({ locationRevenue, loading }) => {
     const [sortConfig, setSortConfig] = useState({ key: 'totalRevenue', direction: 'desc' });
     const [searchTerm, setSearchTerm] = useState('');
+    const [expandedRows, setExpandedRows] = useState(new Set());
 
     const sortedData = useMemo(() => {
         let sortableItems = [...locationRevenue];
@@ -33,6 +34,16 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
         setSortConfig({ key, direction });
     };
 
+    const toggleRow = (locationId) => {
+        const newExpanded = new Set(expandedRows);
+        if (newExpanded.has(locationId)) {
+            newExpanded.delete(locationId);
+        } else {
+            newExpanded.add(locationId);
+        }
+        setExpandedRows(newExpanded);
+    };
+
     if (loading) {
         return <div className="table-loading">Cargando datos de locaciones...</div>;
     }
@@ -57,6 +68,7 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                 <table className="revenue-table">
                     <thead>
                         <tr>
+                            <th style={{ width: '40px' }}></th>
                             <th onClick={() => requestSort('locationName')}>Locación</th>
                             <th onClick={() => requestSort('totalRevenue')}>Revenue</th>
                             <th onClick={() => requestSort('totalCycles')}>Ciclos</th>
@@ -67,41 +79,89 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                     </thead>
                     <tbody>
                         {filteredData.map((location) => (
-                            <tr key={location.locationId}>
-                                <td className="location-cell">
-                                    <div className="location-icon">
-                                        <MapPin size={16} color="#fff" />
-                                    </div>
-                                    <span className="location-name">{location.locationName}</span>
-                                </td>
-                                <td className="revenue-cell">
-                                    ${location.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </td>
-                                <td>
-                                    <div className="cycles-cell">
-                                        <Activity size={14} color="#6B7280" />
-                                        {location.totalCycles.toLocaleString()}
-                                    </div>
-                                </td>
-                                <td>
-                                    <div className="consumption-cell water">
-                                        <Droplets size={14} />
-                                        {(location.waterConsumption || 0).toLocaleString()}
-                                    </div>
-                                </td>
-                                <td>
-                                    <div className="consumption-cell gas">
-                                        <Flame size={14} />
-                                        {(location.gasConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    </div>
-                                </td>
-                                <td>
-                                    <div className="consumption-cell electricity">
-                                        <Zap size={14} />
-                                        {(location.electricityConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    </div>
-                                </td>
-                            </tr>
+                            <React.Fragment key={location.locationId}>
+                                <tr
+                                    className={`location-row ${expandedRows.has(location.locationId) ? 'expanded' : ''}`}
+                                    onClick={() => toggleRow(location.locationId)}
+                                >
+                                    <td className="expand-cell">
+                                        {expandedRows.has(location.locationId) ?
+                                            <ChevronUp size={16} /> :
+                                            <ChevronDown size={16} />
+                                        }
+                                    </td>
+                                    <td className="location-cell">
+                                        <div className="location-icon">
+                                            <MapPin size={16} color="#fff" />
+                                        </div>
+                                        <span className="location-name">{location.locationName}</span>
+                                    </td>
+                                    <td className="revenue-cell">
+                                        ${location.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </td>
+                                    <td>
+                                        <div className="cycles-cell">
+                                            <Activity size={14} color="#6B7280" />
+                                            {location.totalCycles.toLocaleString()}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div className="consumption-cell water">
+                                            <Droplets size={14} />
+                                            {(location.waterConsumption || 0).toLocaleString()}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div className="consumption-cell gas">
+                                            <Flame size={14} />
+                                            {(location.gasConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div className="consumption-cell electricity">
+                                            <Zap size={14} />
+                                            {(location.electricityConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {expandedRows.has(location.locationId) && (
+                                    <tr className="details-row">
+                                        <td colSpan="7">
+                                            <div className="details-container">
+                                                <h4>Detalle por Máquina (Revenue)</h4>
+                                                <div className="machines-grid">
+                                                    {location.machineDetails && location.machineDetails.length > 0 ? (
+                                                        location.machineDetails.map(machine => (
+                                                            <div key={machine.id} className="machine-item">
+                                                                <div className="machine-info">
+                                                                    <span className="machine-name">{machine.name}</span>
+                                                                    <span className="machine-type">{machine.type}</span>
+                                                                </div>
+                                                                <div className="machine-stats">
+                                                                    <span className="machine-revenue">
+                                                                        ${machine.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                                    </span>
+                                                                    <div className="progress-bar-container">
+                                                                        <div
+                                                                            className="progress-bar"
+                                                                            style={{ width: `${Math.min(machine.percentage, 100)}%` }}
+                                                                        ></div>
+                                                                    </div>
+                                                                    <span className="machine-percentage">
+                                                                        {machine.percentage.toFixed(1)}%
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <div className="no-details">No hay detalles disponibles</div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </React.Fragment>
                         ))}
                     </tbody>
                 </table>
@@ -200,8 +260,22 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                     font-size: 0.95rem;
                 }
 
-                .revenue-table tr:last-child td {
-                    border-bottom: none;
+                .location-row {
+                    cursor: pointer;
+                    transition: background-color 0.2s;
+                }
+
+                .location-row:hover {
+                    background-color: var(--bg-hover);
+                }
+                
+                .location-row.expanded {
+                    background-color: var(--bg-secondary);
+                }
+
+                .expand-cell {
+                    color: var(--text-secondary);
+                    text-align: center;
                 }
 
                 .location-cell {
@@ -248,6 +322,96 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                 .consumption-cell.gas { color: #F59E0B; }
                 .consumption-cell.electricity { color: #EAB308; }
 
+                /* Details Row Styles */
+                .details-row td {
+                    padding: 0;
+                    border-bottom: 1px solid var(--border-color);
+                    background-color: var(--bg-secondary);
+                }
+
+                .details-container {
+                    padding: 1.5rem;
+                    border-left: 4px solid var(--accent-color);
+                }
+
+                .details-container h4 {
+                    margin: 0 0 1rem 0;
+                    font-size: 1rem;
+                    color: var(--text-secondary);
+                }
+
+                .machines-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                    gap: 1rem;
+                }
+
+                .machine-item {
+                    background: var(--bg-primary);
+                    padding: 1rem;
+                    border-radius: 8px;
+                    border: 1px solid var(--border-color);
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.5rem;
+                }
+
+                .machine-info {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                .machine-name {
+                    font-weight: 500;
+                    color: var(--text-primary);
+                }
+
+                .machine-type {
+                    font-size: 0.8rem;
+                    color: var(--text-secondary);
+                    background: var(--bg-hover);
+                    padding: 0.2rem 0.5rem;
+                    border-radius: 4px;
+                }
+
+                .machine-stats {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                }
+
+                .machine-revenue {
+                    font-weight: 600;
+                    min-width: 80px;
+                }
+
+                .progress-bar-container {
+                    flex: 1;
+                    height: 6px;
+                    background: var(--bg-hover);
+                    border-radius: 3px;
+                    overflow: hidden;
+                }
+
+                .progress-bar {
+                    height: 100%;
+                    background: var(--accent-color);
+                    border-radius: 3px;
+                }
+
+                .machine-percentage {
+                    font-size: 0.85rem;
+                    color: var(--text-secondary);
+                    min-width: 45px;
+                    text-align: right;
+                }
+
+                .no-details {
+                    color: var(--text-secondary);
+                    font-style: italic;
+                }
+
                 .empty-state {
                     text-align: center;
                     padding: 2rem;
@@ -268,6 +432,10 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                     
                     .search-input {
                         width: 100%;
+                    }
+                    
+                    .machines-grid {
+                        grid-template-columns: 1fr;
                     }
                 }
             `}</style>
