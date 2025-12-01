@@ -43,7 +43,7 @@ export const WHITELISTED_LOCATIONS = [
     'loc_897f53', 'loc_c79151', 'loc_d51f30', 'loc_90f10c', 'loc_519523',
     'loc_5e0e5b', 'loc_f01d07', 'loc_bd0c58', 'loc_649832', 'loc_2167e8',
     'loc_699097', 'loc_87c66a', 'loc_1131af', 'loc_80c010', 'loc_baa380',
-    'loc_f9383e', 'loc_183c8f', 'loc_8bfbc5', 'loc_fef4ea'
+    'loc_f9383e', 'loc_183c8f', 'loc_8bfbc5', 'loc_fef4ea', 'loc_550295'
 ];
 
 // Date from which new locations should be automatically included
