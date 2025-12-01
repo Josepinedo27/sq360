@@ -1,20 +1,20 @@
 ﻿import React, { useEffect, useState } from 'react';
-import { MapPin, DollarSign, RefreshCw, Activity, Droplets, Flame, Zap } from 'lucide-react';
+import { MapPin, DollarSign, RefreshCw, Activity, Droplets, Flame, Zap, LogOut } from 'lucide-react';
 import StatCard from './StatCard';
 import DateRangeSelector from './DateRangeSelector';
 import LocationRevenueTable from './LocationRevenueTable';
 import MachineComparisonTable from './MachineComparisonTable';
 import { getLocations, getLocationRevenue, getLocationCycleUsage, getLocationLifetimeCycles, getMachines } from '../services/api';
+import logo from '../assets/logo.jpg';
+import { WHITELISTED_LOCATIONS, NEW_LOCATIONS_START_DATE } from '../config/locations';
 
-const Dashboard = () => {
+const Dashboard = ({ onLogout }) => {
     const [stats, setStats] = useState({
         locations: 0,
         revenue: 0,
         totalCycles: 0,
         prevTotalCycles: 0,
         avgCyclesPerMachine: 0,
-        avgDailyCycles: 0,
-        waterConsumption: 0,
         avgDailyCycles: 0,
         waterConsumption: 0,
         gasConsumption: 0,
@@ -41,11 +41,18 @@ const Dashboard = () => {
         };
     });
 
+    // Temporary date range for the selector (not yet applied)
+    const [tempDateRange, setTempDateRange] = useState(dateRange);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const handleDateRangeChange = (start, end) => {
-        setDateRange({ startDate: start, endDate: end });
+        setTempDateRange({ startDate: start, endDate: end });
+    };
+
+    const handleSearch = () => {
+        setDateRange(tempDateRange);
     };
 
     const getPreviousPeriod = (start, end) => {
@@ -112,7 +119,6 @@ const Dashboard = () => {
         };
 
         processList(revenueList, true);
-        processList(revenueList, true);
         processList(prevRevenueList, false);
 
         // Calculate percentages for machine details
@@ -159,7 +165,11 @@ const Dashboard = () => {
                         else if (isWasher) washerCycles += cycles;
 
                         // Update machine details with cycle info
-                        const machineDetail = locationMap[loc.id].machinesDetails.find(md => md.id === m.id);
+                        // Try exact match or match without 'mac_' prefix
+                        const cleanId = String(m.id).replace('mac_', '');
+                        const machineDetail = locationMap[loc.id].machinesDetails.find(md =>
+                            String(md.id) === String(m.id) || String(md.id) === cleanId
+                        );
                         if (machineDetail) {
                             machineDetail.totalCycles = cycles;
                             machineDetail.avgDailyCycles = daysInRange > 0 ? (cycles / daysInRange) : 0;
@@ -283,11 +293,11 @@ const Dashboard = () => {
 
     const fetchMachineModels = async (locationsList) => {
         setLoadingModels(true);
-        // Use a local map to accumulate results, but also update state incrementally
-        const modelsMap = { ...machineModels };
-        let steCount = modelCounts.STE;
-        let stgCount = modelCounts.STG;
-        let otherCount = modelCounts.other;
+        // Reset counts and map for a fresh fetch
+        const modelsMap = {};
+        let steCount = 0;
+        let stgCount = 0;
+        let otherCount = 0;
 
         try {
             // Process in batches of 20 to avoid rate limits
@@ -328,7 +338,17 @@ const Dashboard = () => {
 
         try {
             const locationsData = await getLocations();
-            const locations = locationsData?.data || [];
+            let locations = locationsData?.data || [];
+
+            // Filter locations based on whitelist and new locations policy
+            locations = locations.filter(loc => {
+                const isWhitelisted = WHITELISTED_LOCATIONS.includes(loc.id);
+                // Check for creation date if available (assuming 'created_at' or 'createdAt' field)
+                const createdDateStr = loc.created_at || loc.createdAt;
+                const isNew = createdDateStr ? new Date(createdDateStr) >= NEW_LOCATIONS_START_DATE : false;
+
+                return isWhitelisted || isNew;
+            });
 
             if (!Array.isArray(locations) || locations.length === 0) {
                 setError('No se encontraron locaciones');
@@ -348,7 +368,7 @@ const Dashboard = () => {
             const prevEndDateStr = prevEnd.toISOString();
 
             // Calculate days in selected range
-            const daysInRange = Math.max(1, Math.ceil((endDateObj - dateRange.startDate) / (1000 * 60 * 60 * 24)) + 1);
+            const daysInRange = Math.max(1, Math.ceil((endDateObj - dateRange.startDate) / (1000 * 60 * 60 * 24)));
 
             const locationIds = locations.map(loc => loc.id);
 
@@ -539,7 +559,6 @@ const Dashboard = () => {
                     };
                 });
             });
-
         }
     }, [machineModels, cycleList]);
 
@@ -547,7 +566,10 @@ const Dashboard = () => {
         return (
             <div className="dashboard-container">
                 <div className="header">
-                    <h1>Lavanti Dashboard</h1>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <img src={logo} alt="Speed Queen Logo" style={{ height: '80px', borderRadius: '8px' }} />
+                        <h1>360</h1>
+                    </div>
                 </div>
                 <div className="loading">
                     <RefreshCw className="animate-spin" size={48} />
@@ -560,19 +582,32 @@ const Dashboard = () => {
     return (
         <div className="dashboard-container">
             <div className="header">
-                <h1>Speed Queen 360</h1>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <img src={logo} alt="Speed Queen Logo" style={{ height: '80px', borderRadius: '8px' }} />
+                    <h1>360</h1>
+                </div>
                 <div className="header-controls">
                     <DateRangeSelector
-                        startDate={dateRange.startDate}
-                        endDate={dateRange.endDate}
+                        startDate={tempDateRange.startDate}
+                        endDate={tempDateRange.endDate}
                         onRangeChange={handleDateRangeChange}
                     />
                     <button
-                        onClick={fetchData}
+                        onClick={handleSearch}
                         className="refresh-btn"
-                        aria-label="Actualizar datos"
+                        aria-label="Buscar"
+                        title="Buscar"
+                        style={{ background: 'var(--accent-color)', color: 'white', borderColor: 'var(--accent-color)' }}
                     >
                         <RefreshCw size={20} />
+                    </button>
+                    <button
+                        onClick={onLogout}
+                        className="refresh-btn"
+                        aria-label="Cerrar Sesión"
+                        title="Cerrar Sesión"
+                    >
+                        <LogOut size={20} />
                     </button>
                 </div>
             </div>
@@ -622,7 +657,7 @@ const Dashboard = () => {
                 <StatCard
                     title="Promedio Diario/Equipo"
                     value={stats.avgDailyCycles.toFixed(1)}
-                    subtext={"Por d\u00EDa"}
+                    subtext="Por día"
                     icon={Activity}
                     color="#8B5CF6"
                 />
@@ -635,13 +670,13 @@ const Dashboard = () => {
                 />
                 <StatCard
                     title="Consumo Gas"
-                    value={`${stats.gasConsumption.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m\u00B3`}
+                    value={`${stats.gasConsumption.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³`}
                     subtext="Estimado (Modelos STG)"
                     icon={Flame}
                     color="#F59E0B"
                 />
                 <StatCard
-                    title={"Consumo El\u00E9ctrico"}
+                    title="Consumo Eléctrico"
                     value={`${stats.electricityConsumption.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kWh`}
                     subtext="Estimado (STE + STG)"
                     icon={Zap}
@@ -657,7 +692,7 @@ const Dashboard = () => {
                 </div>
                 <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
                     <div>
-                        <div className="card-subtext">Modelos STE (El{"\u00E9"}ctricos)</div>
+                        <div className="card-subtext">Modelos STE (Eléctricos)</div>
                         <div className="card-value" style={{ fontSize: '1.5rem', color: '#3B82F6' }}>
                             {loadingModels ? '...' : modelCounts.STE}
                         </div>

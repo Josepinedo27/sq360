@@ -19,6 +19,11 @@ function App() {
         setIsAuthenticated(true);
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem('sq360_auth');
+        setIsAuthenticated(false);
+    };
+
     if (isLoading) return null;
 
     return (
@@ -26,7 +31,7 @@ function App() {
             {!isAuthenticated ? (
                 <Login onLogin={handleLogin} />
             ) : (
-                <Dashboard />
+                <Dashboard onLogout={handleLogout} />
             )}
         </div>
     );

@@ -23,7 +23,7 @@ const MachineComparisonTable = ({ cycleList, prevCycleList, locations }) => {
 
                 comparisonData.push({
                     machineId: machine.id,
-                    machineName: machine.name || `M\u00E1quina ${index + 1}`,
+                    machineName: machine.name || `Máquina ${index + 1}`,
                     locationName,
                     currentCycles,
                     prevCycles,
@@ -65,10 +65,10 @@ const MachineComparisonTable = ({ cycleList, prevCycleList, locations }) => {
     return (
         <div className="comparison-container">
             <div className="comparison-header">
-                <h2>Comparaci\u00F3n Mensual por Equipo</h2>
+                <h2>Comparación Mensual por Equipo</h2>
                 <input
                     type="text"
-                    placeholder="Buscar m\u00E1quina o ubicaci\u00F3n..."
+                    placeholder="Buscar máquina o ubicación..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="search-input"
@@ -79,10 +79,10 @@ const MachineComparisonTable = ({ cycleList, prevCycleList, locations }) => {
                 <table className="comparison-table">
                     <thead>
                         <tr>
-                            <th onClick={() => handleSort('machineName')}>M\u00E1quina</th>
-                            <th onClick={() => handleSort('locationName')}>Ubicaci\u00F3n</th>
-                            <th onClick={() => handleSort('currentCycles')}>Per\u00EDodo Actual</th>
-                            <th onClick={() => handleSort('prevCycles')}>Per\u00EDodo Anterior</th>
+                            <th onClick={() => handleSort('machineName')}>Máquina</th>
+                            <th onClick={() => handleSort('locationName')}>Ubicación</th>
+                            <th onClick={() => handleSort('currentCycles')}>Período Actual</th>
+                            <th onClick={() => handleSort('prevCycles')}>Período Anterior</th>
                             <th onClick={() => handleSort('delta')}>Diferencia</th>
                             <th onClick={() => handleSort('percentChange')}>% Cambio</th>
                             <th onClick={() => handleSort('lifetimeCycles')}>Lifetime Cycles</th>

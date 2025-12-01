@@ -1,10 +1,96 @@
 import React, { useState } from 'react';
 import { Lock } from 'lucide-react';
+import logo from '../assets/logo.jpg';
 
 const Login = ({ onLogin }) => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const canvasRef = React.useRef(null);
 
+    React.useEffect(() => {
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        let animationFrameId;
+        let particles = [];
+
+        const resizeCanvas = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2 + 1;
+                this.color = `rgba(59, 130, 246, ${Math.random() * 0.5})`;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        const initParticles = () => {
+            particles = [];
+            for (let i = 0; i < 100; i++) {
+                particles.push(new Particle());
+            }
+        };
+
+        const animate = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            // Draw connections
+            particles.forEach((p1, i) => {
+                particles.slice(i + 1).forEach(p2 => {
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(59, 130, 246, ${0.1 - distance / 1000})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                });
+            });
+
+            animationFrameId = requestAnimationFrame(animate);
+        };
+
+        initParticles();
+        animate();
+
+        return () => {
+            window.removeEventListener('resize', resizeCanvas);
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, []);
     const handleSubmit = (e) => {
         e.preventDefault();
         if (password === 'stgnxasp115tw01') {
@@ -17,10 +103,11 @@ const Login = ({ onLogin }) => {
 
     return (
         <div className="login-container">
+            <canvas ref={canvasRef} className="particles-canvas" />
             <div className="login-card">
                 <div className="login-header">
-                    <div className="icon-bg">
-                        <Lock size={32} color="white" />
+                    <div className="icon-bg" style={{ padding: 0, overflow: 'hidden', background: 'transparent', boxShadow: 'none' }}>
+                        <img src={logo} alt="Speed Queen Logo" style={{ width: '150px', height: '150px', borderRadius: '50%', objectFit: 'cover' }} />
                     </div>
                     <h1>Speed Queen 360</h1>
                     <p>Acceso Restringido</p>

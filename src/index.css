@@ -1,4 +1,3 @@
-/* Speed Queen 360 Dashboard - Updated: 2025-11-22 11:15 */
 :root {
   --bg-primary: #0f172a;
   --bg-secondary: #1e293b;
@@ -382,66 +381,6 @@ body {
 }
 
 .no-results {
-  font-weight: 600;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--glass-border);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: var(--bg-secondary);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.location-revenue-table th.sortable {
-  cursor: pointer;
-  user-select: none;
-  transition: color 0.2s ease;
-}
-
-.location-revenue-table th.sortable:hover {
-  color: var(--accent-color);
-}
-
-.location-revenue-table td {
-  padding: 1rem;
-  border-bottom: 1px solid var(--glass-border);
-  color: var(--text-primary);
-}
-
-.location-revenue-table tbody tr {
-  transition: background-color 0.2s ease;
-}
-
-.location-revenue-table tbody tr:hover {
-  background-color: rgba(59, 130, 246, 0.05);
-}
-
-.location-name {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-primary);
-  font-weight: 500;
-}
-
-.machine-count {
-  color: var(--text-secondary);
-}
-
-.revenue {
-  color: var(--success-color);
-  font-weight: 600;
-}
-
-.percentage {
-  color: var(--text-secondary);
-  font-style: italic;
-}
-
-.no-results {
   text-align: center;
   padding: 2rem;
   color: var(--text-secondary);
@@ -578,7 +517,6 @@ body {
 @media (max-width: 480px) {
   html {
     font-size: 12px;
-    /* 75% of default 16px, effectively zooming out */
   }
 
   .dashboard-container {
@@ -587,7 +525,6 @@ body {
 
   .header h1 {
     font-size: 1.5rem;
-    /* Relative to new base size */
   }
 
   .month-selector {
@@ -627,17 +564,30 @@ body {
 
 /* Login Styles */
 .login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: relative;
   min-height: 100vh;
-  padding: 1rem;
-  background: radial-gradient(circle at top center, #1e293b 0%, #0f172a 100%);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-primary);
+  overflow: hidden;
+}
+
+.particles-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
 
 .login-card {
-  background: var(--card-bg);
-  backdrop-filter: blur(20px);
+  position: relative;
+  z-index: 1;
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(10px);
   border: 1px solid var(--glass-border);
   border-radius: 1.5rem;
   padding: 2.5rem;
@@ -649,26 +599,6 @@ body {
 
 .login-header {
   margin-bottom: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.icon-bg {
-  background: var(--accent-color);
-  padding: 1rem;
-  border-radius: 50%;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.login-header h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
   color: var(--text-primary);
 }
 

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { MapPin, TrendingUp, Search, Activity, Droplets, Flame, Zap, ChevronDown, ChevronUp } from 'lucide-react';
+import { MapPin, TrendingUp, Search, Activity, Droplets, Flame, Zap, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 
 const LocationRevenueTable = ({ locationRevenue, loading }) => {
     const [sortConfig, setSortConfig] = useState({ key: 'totalRevenue', direction: 'desc' });
@@ -140,6 +140,10 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                                                                 <div className="machine-stats">
                                                                     <span className="machine-revenue">
                                                                         ${machine.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                                    </span>
+                                                                    <span className="machine-cycles" title="Ciclos Totales">
+                                                                        <RefreshCw size={12} />
+                                                                        {(machine.totalCycles || 0).toLocaleString()}
                                                                     </span>
                                                                     <span className="machine-avg-daily" title="Promedio ciclos por día">
                                                                         <Activity size={12} />
@@ -388,6 +392,19 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                 .machine-revenue {
                     font-weight: 600;
                     min-width: 80px;
+                }
+
+                .machine-cycles {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    font-size: 0.8rem;
+                    color: var(--text-primary);
+                    background: var(--bg-hover);
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    white-space: nowrap;
+                    font-weight: 500;
                 }
 
                 .machine-avg-daily {
