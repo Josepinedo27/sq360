@@ -91,10 +91,23 @@ const Login = ({ onLogin }) => {
             cancelAnimationFrame(animationFrameId);
         };
     }, []);
+    // Credential Mapping for Localhost
+    const CREDENTIALS = {
+        'stgnxasp115tw01': { role: 'admin', name: 'Admin', allowedLocations: [] },
+        'view63lavanti': { role: 'client', name: 'View 63', allowedLocations: ['loc_699097'] },
+        '127living': { role: 'client', name: '127 Living', allowedLocations: ['loc_c756f5'] },
+        'academia59': { role: 'client', name: 'Academia 59', allowedLocations: ['loc_a915ab'] },
+        'urban': { role: 'client', name: 'Urban', allowedLocations: ['loc_ed692c'] },
+        'frontera': { role: 'client', name: 'Frontera', allowedLocations: ['loc_eb8d83'] },
+        'eka': { role: 'client', name: 'EKA', allowedLocations: ['loc_d42750'] }
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (password === 'stgnxasp115tw01') {
-            onLogin();
+        const user = CREDENTIALS[password];
+
+        if (user) {
+            onLogin(user);
         } else {
             setError('Contraseña incorrecta');
             setPassword('');
@@ -109,8 +122,7 @@ const Login = ({ onLogin }) => {
                     <div className="icon-bg" style={{ padding: 0, overflow: 'hidden', background: 'transparent', boxShadow: 'none' }}>
                         <img src={logo} alt="Speed Queen Logo" style={{ width: '150px', height: '150px', borderRadius: '50%', objectFit: 'cover' }} />
                     </div>
-                    <h1>Speed Queen 360</h1>
-                    <p>Acceso Restringido</p>
+                    <h1>360</h1>
                 </div>
 
                 <form onSubmit={handleSubmit} className="login-form">
@@ -128,6 +140,9 @@ const Login = ({ onLogin }) => {
                         Entrar
                     </button>
                 </form>
+            </div>
+            <div style={{ position: 'absolute', bottom: '1rem', color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.9rem', zIndex: 10 }}>
+                v1.0.5
             </div>
         </div>
     );

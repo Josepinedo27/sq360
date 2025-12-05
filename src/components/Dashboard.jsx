@@ -8,7 +8,15 @@ import { getLocations, getLocationRevenue, getLocationCycleUsage, getLocationLif
 import logo from '../assets/logo.jpg';
 import { WHITELISTED_LOCATIONS, NEW_LOCATIONS_START_DATE } from '../config/locations';
 
-const Dashboard = ({ onLogout }) => {
+const Dashboard = ({ user, onLogout }) => {
+    // Utility rates (COP)
+    const RATES = {
+        ELECTRICITY: 831,    // COP/kWh
+        GAS: 2894,          // COP/m³
+        WATER: 3593,        // COP/m³ (Aqueduct)
+        SEWAGE: 3838        // COP/m³ (Sewage)
+    };
+
     const [stats, setStats] = useState({
         locations: 0,
         revenue: 0,
@@ -219,18 +227,34 @@ const Dashboard = ({ onLogout }) => {
             });
         }
 
-        return Object.values(locationMap).map(loc => ({
-            locationId: loc.locationId,
-            locationName: loc.locationName,
-            totalRevenue: loc.totalRevenue,
-            prevTotalRevenue: loc.prevTotalRevenue,
-            machineCount: loc.machines.size,
-            waterConsumption: loc.waterConsumption,
-            gasConsumption: loc.gasConsumption,
-            electricityConsumption: loc.electricityConsumption,
-            totalCycles: loc.totalCycles,
-            machineDetails: Array.from(loc.machinesDetails || []).sort((a, b) => b.revenue - a.revenue)
-        }));
+        return Object.values(locationMap).map(loc => {
+            // Calculate Costs
+            const aqueductCost = (loc.waterConsumption / 1000) * RATES.WATER;
+            const sewageCost = (loc.waterConsumption / 1000) * RATES.SEWAGE;
+            const waterCost = aqueductCost + sewageCost;
+            const electricityCost = loc.electricityConsumption * RATES.ELECTRICITY;
+            const gasCost = loc.gasConsumption * RATES.GAS;
+            const totalUtilityCost = waterCost + electricityCost + gasCost;
+
+            return {
+                locationId: loc.locationId,
+                locationName: loc.locationName,
+                totalRevenue: loc.totalRevenue,
+                prevTotalRevenue: loc.prevTotalRevenue,
+                machineCount: loc.machines.size,
+                waterConsumption: loc.waterConsumption,
+                gasConsumption: loc.gasConsumption,
+                electricityConsumption: loc.electricityConsumption,
+                aqueductCost,
+                sewageCost,
+                waterCost,
+                gasCost,
+                electricityCost,
+                totalUtilityCost,
+                totalCycles: loc.totalCycles,
+                machineDetails: Array.from(loc.machinesDetails || []).sort((a, b) => b.revenue - a.revenue)
+            };
+        });
     };
 
     const calculateConsumption = (currentCycleList, currentMachineModels) => {
@@ -340,8 +364,23 @@ const Dashboard = ({ onLogout }) => {
             const locationsData = await getLocations();
             let locations = locationsData?.data || [];
 
+            // Temporary log to find IDs
+            console.log('Location Mapping:', locations.map(l => `${l.name}: ${l.id}`).join('\n'));
+
             // Filter locations based on whitelist and new locations policy
             locations = locations.filter(loc => {
+                // First check if user is client and restrict to allowed locations
+                if (user?.role === 'client') {
+                    return user.allowedLocations.includes(loc.id);
+                }
+
+                // Check if running locally
+                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+                if (isLocalhost) {
+                    return true;
+                }
+
                 const isWhitelisted = WHITELISTED_LOCATIONS.includes(loc.id);
                 // Check for creation date if available (assuming 'created_at' or 'createdAt' field)
                 const createdDateStr = loc.created_at || loc.createdAt;
@@ -551,11 +590,25 @@ const Dashboard = ({ onLogout }) => {
                         });
                     }
 
+                    // Calculate Costs
+                    const aqueductCost = (locWater / 1000) * RATES.WATER;
+                    const sewageCost = (locWater / 1000) * RATES.SEWAGE;
+                    const waterCost = aqueductCost + sewageCost;
+                    const electricityCost = locElectricity * RATES.ELECTRICITY;
+                    const gasCost = locGas * RATES.GAS;
+                    const totalUtilityCost = waterCost + electricityCost + gasCost;
+
                     return {
                         ...loc,
                         waterConsumption: locWater,
                         gasConsumption: locGas,
-                        electricityConsumption: locElectricity
+                        electricityConsumption: locElectricity,
+                        aqueductCost,
+                        sewageCost,
+                        waterCost,
+                        gasCost,
+                        electricityCost,
+                        totalUtilityCost
                     };
                 });
             });
@@ -622,13 +675,15 @@ const Dashboard = ({ onLogout }) => {
                     icon={MapPin}
                     color="var(--accent-color)"
                 />
-                <StatCard
-                    title="Revenue Total"
-                    value={`$${stats.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                    subtext="En el periodo seleccionado"
-                    icon={DollarSign}
-                    color="var(--warning-color)"
-                />
+                {user?.role === 'admin' && (
+                    <StatCard
+                        title="Revenue Total"
+                        value={`$${stats.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                        subtext="En el periodo seleccionado"
+                        icon={DollarSign}
+                        color="var(--warning-color)"
+                    />
+                )}
                 <StatCard
                     title="Ciclos Totales"
                     value={stats.totalCycles.toLocaleString()}
@@ -716,6 +771,7 @@ const Dashboard = ({ onLogout }) => {
             <LocationRevenueTable
                 locationRevenue={locationRevenue}
                 loading={loading}
+                user={user}
             />
 
             <MachineComparisonTable

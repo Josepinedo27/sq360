@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { MapPin, TrendingUp, Search, Activity, Droplets, Flame, Zap, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 
-const LocationRevenueTable = ({ locationRevenue, loading }) => {
+const LocationRevenueTable = ({ locationRevenue, loading, user }) => {
     const [sortConfig, setSortConfig] = useState({ key: 'totalRevenue', direction: 'desc' });
     const [searchTerm, setSearchTerm] = useState('');
     const [expandedRows, setExpandedRows] = useState(new Set());
@@ -70,11 +70,11 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                         <tr>
                             <th style={{ width: '40px' }}></th>
                             <th onClick={() => requestSort('locationName')}>Locación</th>
-                            <th onClick={() => requestSort('totalRevenue')}>Revenue</th>
+                            {user?.role === 'admin' && (
+                                <th onClick={() => requestSort('totalRevenue')}>Revenue</th>
+                            )}
                             <th onClick={() => requestSort('totalCycles')}>Ciclos</th>
-                            <th onClick={() => requestSort('waterConsumption')}>Agua (L)</th>
-                            <th onClick={() => requestSort('gasConsumption')}>Gas (m³)</th>
-                            <th onClick={() => requestSort('electricityConsumption')}>Elec (kWh)</th>
+                            <th onClick={() => requestSort('totalUtilityCost')}>Total Servicios</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -96,39 +96,86 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                                         </div>
                                         <span className="location-name">{location.locationName}</span>
                                     </td>
-                                    <td className="revenue-cell">
-                                        ${location.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    </td>
+                                    {user?.role === 'admin' && (
+                                        <td className="revenue-cell">
+                                            ${location.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </td>
+                                    )}
                                     <td>
                                         <div className="cycles-cell">
                                             <Activity size={14} color="#6B7280" />
                                             {location.totalCycles.toLocaleString()}
                                         </div>
                                     </td>
-                                    <td>
-                                        <div className="consumption-cell water">
-                                            <Droplets size={14} />
-                                            {(location.waterConsumption || 0).toLocaleString()}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className="consumption-cell gas">
-                                            <Flame size={14} />
-                                            {(location.gasConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className="consumption-cell electricity">
-                                            <Zap size={14} />
-                                            {(location.electricityConsumption || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    {/* Costs moved to details */}
+                                    <td className="total-cost-cell">
+                                        <div style={{ fontWeight: 600, color: '#EF4444' }}>
+                                            ${(location.totalUtilityCost || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                                         </div>
                                     </td>
                                 </tr>
                                 {expandedRows.has(location.locationId) && (
                                     <tr className="details-row">
-                                        <td colSpan="7">
+                                        <td colSpan="5">
                                             <div className="details-container">
-                                                <h4>Detalle por Máquina (Revenue)</h4>
+                                                <div className="utility-breakdown" style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#F9FAFB', borderRadius: '0.5rem' }}>
+                                                    <h4 style={{ marginBottom: '1rem', color: '#374151', fontSize: '0.9rem', fontWeight: 600 }}>Desglose de Servicios</h4>
+                                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                                                        {/* Water Breakdown */}
+                                                        <div className="utility-card">
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                                                <Droplets size={16} color="#0EA5E9" />
+                                                                <span style={{ fontWeight: 500, color: '#374151' }}>Agua</span>
+                                                            </div>
+                                                            <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#0EA5E9' }}>
+                                                                ${(location.waterCost || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                                            </div>
+                                                            <div style={{ fontSize: '0.8rem', color: '#6B7280', marginTop: '0.25rem' }}>
+                                                                Consumo: {(location.waterConsumption || 0).toLocaleString()} L
+                                                            </div>
+                                                            <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px dashed #E5E7EB', fontSize: '0.8rem' }}>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                                    <span style={{ color: '#6B7280' }}>Acueducto:</span>
+                                                                    <span style={{ fontWeight: 500 }}>${(location.aqueductCost || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                                                </div>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem' }}>
+                                                                    <span style={{ color: '#6B7280' }}>Alcantarillado:</span>
+                                                                    <span style={{ fontWeight: 500 }}>${(location.sewageCost || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Gas Breakdown */}
+                                                        <div className="utility-card">
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                                                <Flame size={16} color="#F59E0B" />
+                                                                <span style={{ fontWeight: 500, color: '#374151' }}>Gas</span>
+                                                            </div>
+                                                            <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#F59E0B' }}>
+                                                                ${(location.gasCost || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                                            </div>
+                                                            <div style={{ fontSize: '0.8rem', color: '#6B7280', marginTop: '0.25rem' }}>
+                                                                Consumo: {(location.gasConsumption || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })} m³
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Electricity Breakdown */}
+                                                        <div className="utility-card">
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                                                <Zap size={16} color="#EAB308" />
+                                                                <span style={{ fontWeight: 500, color: '#374151' }}>Energía</span>
+                                                            </div>
+                                                            <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#EAB308' }}>
+                                                                ${(location.electricityCost || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                                            </div>
+                                                            <div style={{ fontSize: '0.8rem', color: '#6B7280', marginTop: '0.25rem' }}>
+                                                                Consumo: {(location.electricityConsumption || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })} kWh
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <h4>Detalle por Máquina {user?.role === 'admin' ? '(Revenue)' : ''}</h4>
                                                 <div className="machines-grid">
                                                     {location.machineDetails && location.machineDetails.length > 0 ? (
                                                         location.machineDetails.map(machine => (
@@ -138,9 +185,11 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                                                                     <span className="machine-type">{machine.type}</span>
                                                                 </div>
                                                                 <div className="machine-stats">
-                                                                    <span className="machine-revenue">
-                                                                        ${machine.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                                    </span>
+                                                                    {user?.role === 'admin' && (
+                                                                        <span className="machine-revenue">
+                                                                            ${machine.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                                        </span>
+                                                                    )}
                                                                     <span className="machine-cycles" title="Ciclos Totales">
                                                                         <RefreshCw size={12} />
                                                                         {(machine.totalCycles || 0).toLocaleString()}
@@ -329,6 +378,19 @@ const LocationRevenueTable = ({ locationRevenue, loading }) => {
                 .consumption-cell.water { color: #0EA5E9; }
                 .consumption-cell.gas { color: #F59E0B; }
                 .consumption-cell.electricity { color: #EAB308; }
+
+                .cost-cell {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 2px;
+                }
+
+                .total-cost-cell {
+                    padding: 1rem;
+                    border-bottom: 1px solid var(--border-color);
+                    text-align: right;
+                }
 
                 /* Details Row Styles */
                 .details-row td {
